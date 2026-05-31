@@ -67,7 +67,7 @@ export function useSocket() {
     drawerWord: '',
     drawerImageUrl: '',
     drawingRoundKey: 0,
-    showHints: true,
+    showHints: false,
   });
 
   useEffect(() => {
@@ -122,7 +122,7 @@ export function useSocket() {
     });
 
     socket.on('pick-words', ({ words }) => {
-      setData((d) => ({ ...d, wordOptions: words }));
+      setData((d) => ({ ...d, wordOptions: words, gameState: 'PICKING_WORD' as GameState }));
     });
 
     socket.on('drawing-start', ({ drawer, wordLength, category, round, totalRounds, drawTime, imageUrl }) => {
@@ -256,7 +256,7 @@ export function useSocket() {
   const pickWord = useCallback((word: string) => {
     setData((d) => {
       const picked = d.wordOptions.find((w) => w.word === word);
-      return { ...d, drawerWord: word, drawerImageUrl: picked?.imageUrl || '' };
+      return { ...d, drawerWord: word, drawerImageUrl: picked?.imageUrl || '', wordOptions: [] };
     });
     socket.emit('pick-word', { word });
   }, []);

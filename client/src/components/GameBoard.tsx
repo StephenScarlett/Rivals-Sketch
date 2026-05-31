@@ -121,40 +121,44 @@ export default function GameBoard({
   }, [gameState]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       {/* Top bar */}
-      <div className="px-4 py-3 bg-[var(--color-surface)] border-b border-[var(--color-border)]">
-        <div className="max-w-7xl mx-auto flex items-center gap-4">
+      <div className="px-6 py-2.5 bg-[var(--color-surface)] border-b border-[var(--color-border)] flex-shrink-0">
+        <div className="flex items-center gap-4">
           <h1 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             Rivals Sketch
           </h1>
-          <div className="flex-1" />
 
-          {isDrawing && (
+          {/* Always show round info and who's drawing when in-game */}
+          {(isDrawing || gameState === 'PICKING_WORD' || gameState === 'ROUND_END') && (
             <>
+              <div className="h-5 w-px bg-[var(--color-border)]" />
               <div className="text-sm text-[var(--color-text-muted)]">
                 Round {round}/{totalRounds}
               </div>
-              <div className="text-sm">
+              <div className="h-5 w-px bg-[var(--color-border)]" />
+              <div className="flex items-center gap-2">
                 {isDrawer ? (
-                  <span className="text-purple-300">
-                    You're drawing: <strong>{drawerWord}</strong>
+                  <span className="text-sm px-3 py-1 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium">
+                    🖌️ You're drawing{isDrawing ? `: ${drawerWord}` : ''}
                   </span>
-                ) : (
-                  <span className="text-[var(--color-text-muted)]">
-                    <strong className="text-purple-300">{currentDrawer?.nickname}</strong> is drawing
+                ) : currentDrawer ? (
+                  <span className="text-sm px-3 py-1 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium">
+                    🖌️ {currentDrawer.nickname} is drawing
                   </span>
-                )}
+                ) : null}
               </div>
             </>
           )}
+
+          <div className="flex-1" />
         </div>
       </div>
 
       {/* Word hint + Timer */}
       {isDrawing && (
-        <div className="px-4 py-2 bg-[var(--color-surface-light)] border-b border-[var(--color-border)]">
-          <div className="max-w-7xl mx-auto space-y-2">
+        <div className="px-6 py-2 bg-[var(--color-surface-light)] border-b border-[var(--color-border)] flex-shrink-0">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs text-[var(--color-text-muted)]">{category}</span>
               {showHints && (
@@ -170,44 +174,46 @@ export default function GameBoard({
         </div>
       )}
 
-      {/* Main content */}
-      <div className="flex-1 p-4">
-        <div className="max-w-7xl mx-auto grid grid-cols-[260px_1fr_280px] gap-4 h-full" style={{ minHeight: 'calc(100vh - 140px)' }}>
+      {/* Main content — full width, no max-w constraint */}
+      <div className="flex-1 px-4 py-3 min-h-0">
+        <div className="grid grid-cols-[220px_1fr_300px] gap-4 h-full">
           {/* Left: Scoreboard */}
-          <div>
+          <div className="min-h-0 overflow-y-auto">
             <Scoreboard players={players} myId={myId} />
           </div>
 
           {/* Center: Canvas + Reference Image */}
-          <div className="flex flex-col gap-3">
-            {/* Reference image for drawer */}
+          <div className="flex flex-col gap-3 min-h-0">
+            {/* Reference image for drawer — larger and more prominent */}
             {isDrawer && isDrawing && drawerImageUrl && (
-              <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]">
+              <div className="flex items-center gap-4 px-5 py-3 rounded-xl bg-[var(--color-surface)] border border-purple-500/30 flex-shrink-0">
                 <img
                   src={drawerImageUrl}
                   alt={drawerWord}
-                  className="w-12 h-12 object-contain rounded-lg"
+                  className="w-24 h-24 object-contain rounded-lg bg-[var(--color-surface-light)] p-1"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
                 <div>
-                  <p className="text-sm font-semibold text-purple-300">Reference</p>
-                  <p className="text-xs text-[var(--color-text-muted)]">Draw: {drawerWord}</p>
+                  <p className="text-base font-semibold text-purple-300">Reference Image</p>
+                  <p className="text-sm text-[var(--color-text-muted)]">Draw: <strong className="text-[var(--color-text)]">{drawerWord}</strong></p>
                 </div>
               </div>
             )}
-            <Canvas
-              ref={canvasRef}
-              isDrawer={isDrawer}
-              drawEvents={drawEvents}
-              onDraw={onDraw}
-              roundKey={drawingRoundKey}
-            />
+            <div className="flex-1 min-h-0">
+              <Canvas
+                ref={canvasRef}
+                isDrawer={isDrawer}
+                drawEvents={drawEvents}
+                onDraw={onDraw}
+                roundKey={drawingRoundKey}
+              />
+            </div>
           </div>
 
           {/* Right: Chat */}
-          <div style={{ height: 'calc(100vh - 160px)' }}>
+          <div className="min-h-0">
             <Chat
               messages={messages}
               onGuess={onGuess}
@@ -220,7 +226,7 @@ export default function GameBoard({
       </div>
 
       {/* Overlays */}
-      {wordOptions.length > 0 && gameState !== 'ROUND_END' && (
+      {wordOptions.length > 0 && (
         <WordPicker words={wordOptions} onPick={onPickWord} />
       )}
 

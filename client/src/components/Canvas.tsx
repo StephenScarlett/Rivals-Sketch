@@ -315,9 +315,9 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(function Canvas(
   });
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 h-full">
       {/* Canvas */}
-      <div className="relative rounded-xl overflow-hidden border-2 border-[var(--color-border)] bg-white">
+      <div className="relative rounded-xl overflow-hidden border-2 border-[var(--color-border)] bg-white flex-1 min-h-0">
         <canvas
           ref={canvasRef}
           className="w-full cursor-crosshair touch-none"

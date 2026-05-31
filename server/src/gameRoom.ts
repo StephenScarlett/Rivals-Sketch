@@ -30,7 +30,7 @@ const DEFAULT_SETTINGS: RoomSettings = {
     WordCategory.WEAPONS,
     WordCategory.MAPS,
   ],
-  showHints: true,
+  showHints: false,
   useRealNames: false,
 };
 
@@ -386,10 +386,18 @@ export class GameRoom {
       return;
     }
 
-    // Check for close guess
+    // Check for close guess — only tell the guesser, don't broadcast their text
     if (isCloseGuess(trimmed, this.currentWord.word)) {
       this.toSocket(socketId).emit('close-guess');
-      // Still show the message to others as a normal chat
+      // Show the guess only to the guesser so it doesn't give the answer away
+      this.toSocket(socketId).emit('chat-message', {
+        id: Date.now().toString() + socketId,
+        sender: player.nickname,
+        text: trimmed,
+        type: 'guess',
+        timestamp: Date.now(),
+      });
+      return;
     }
 
     // Broadcast as a regular chat message
