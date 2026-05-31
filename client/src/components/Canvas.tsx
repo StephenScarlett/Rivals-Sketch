@@ -337,9 +337,9 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(function Canvas(
 
       {/* Toolbar (drawer only) */}
       {isDrawer && (
-        <div className="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]">
+        <div className="flex flex-wrap items-center gap-1.5 md:gap-3 p-2 md:p-3 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]">
           {/* Colors */}
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1">
             {COLORS.map((c) => (
               <button
                 key={c}
@@ -347,7 +347,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(function Canvas(
                   setColor(c);
                   setTool('brush');
                 }}
-                className={`w-7 h-7 rounded-full border-2 transition ${
+                className={`w-6 h-6 md:w-7 md:h-7 rounded-full border-2 transition ${
                   color === c && tool === 'brush'
                     ? 'border-purple-400 scale-110'
                     : 'border-[var(--color-border)]'
@@ -357,15 +357,15 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(function Canvas(
             ))}
           </div>
 
-          <div className="w-px h-8 bg-[var(--color-border)]" />
+          <div className="w-px h-6 md:h-8 bg-[var(--color-border)]" />
 
           {/* Brush sizes */}
-          <div className="flex gap-1.5 items-center">
+          <div className="flex gap-1 md:gap-1.5 items-center">
             {BRUSH_SIZES.map((size) => (
               <button
                 key={size}
                 onClick={() => setBrushSize(size)}
-                className={`flex items-center justify-center w-8 h-8 rounded-lg transition ${
+                className={`flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-lg transition ${
                   brushSize === size
                     ? 'bg-purple-600'
                     : 'bg-[var(--color-surface-light)] hover:bg-[var(--color-border)]'
@@ -379,50 +379,50 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(function Canvas(
             ))}
           </div>
 
-          <div className="w-px h-8 bg-[var(--color-border)]" />
+          <div className="w-px h-6 md:h-8 bg-[var(--color-border)]" />
 
           {/* Tools */}
           <button
             onClick={() => setTool('brush')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+            className={`px-2 md:px-3 py-1.5 rounded-lg text-sm font-medium transition ${
               tool === 'brush'
                 ? 'bg-purple-600 text-white'
                 : 'bg-[var(--color-surface-light)] hover:bg-[var(--color-border)]'
             }`}
           >
-            🖌️ Brush
+            🖌️<span className="hidden md:inline"> Brush</span>
           </button>
           <button
             onClick={() => setTool('eraser')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+            className={`px-2 md:px-3 py-1.5 rounded-lg text-sm font-medium transition ${
               tool === 'eraser'
                 ? 'bg-purple-600 text-white'
                 : 'bg-[var(--color-surface-light)] hover:bg-[var(--color-border)]'
             }`}
           >
-            🧹 Eraser
+            🧹<span className="hidden md:inline"> Eraser</span>
           </button>
           <button
             onClick={() => setTool('fill')}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+            className={`px-2 md:px-3 py-1.5 rounded-lg text-sm font-medium transition ${
               tool === 'fill'
                 ? 'bg-purple-600 text-white'
                 : 'bg-[var(--color-surface-light)] hover:bg-[var(--color-border)]'
             }`}
           >
-            🪣 Fill
+            🪣<span className="hidden md:inline"> Fill</span>
           </button>
           <button
             onClick={handleUndo}
-            className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[var(--color-surface-light)] hover:bg-[var(--color-border)] transition"
+            className="px-2 md:px-3 py-1.5 rounded-lg text-sm font-medium bg-[var(--color-surface-light)] hover:bg-[var(--color-border)] transition"
           >
-            ↩ Undo
+            ↩<span className="hidden md:inline"> Undo</span>
           </button>
           <button
             onClick={handleClear}
-            className="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-500/20 text-red-400 hover:bg-red-500/30 transition"
+            className="px-2 md:px-3 py-1.5 rounded-lg text-sm font-medium bg-red-500/20 text-red-400 hover:bg-red-500/30 transition"
           >
-            🗑️ Clear
+            🗑️<span className="hidden md:inline"> Clear</span>
           </button>
         </div>
       )}
