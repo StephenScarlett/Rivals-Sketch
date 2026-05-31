@@ -26,9 +26,6 @@ const DEFAULT_SETTINGS: RoomSettings = {
   drawTime: 90,
   categories: [
     WordCategory.HEROES,
-    WordCategory.ABILITIES,
-    WordCategory.WEAPONS,
-    WordCategory.MAPS,
   ],
   showHints: false,
   useRealNames: false,

@@ -144,9 +144,9 @@ export default function GameBoard({
   }, [gameState]);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-dvh flex flex-col overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* App nav bar — always visible, separate from game info */}
-      <div className="px-3 md:px-6 py-2 bg-[var(--color-surface)] border-b border-[var(--color-border)] flex-shrink-0">
+      <div className="px-3 md:px-6 py-1.5 md:py-2 bg-[var(--color-surface)] border-b border-[var(--color-border)] flex-shrink-0">
         <div className="flex items-center">
           <button
             onClick={() => setShowLeaveConfirm(true)}
@@ -269,7 +269,7 @@ export default function GameBoard({
         </div>
 
         {/* Mobile: Full-width canvas */}
-        <div className="md:hidden flex flex-col h-full pb-14">
+        <div className="md:hidden flex flex-col h-full pb-12">
           {/* Reference image banner for drawer on mobile */}
           {isDrawer && isDrawing && drawerImageUrl && (
             <div className="flex items-center gap-2 mb-2 p-2 rounded-lg bg-[var(--color-surface)] border border-purple-500/30 flex-shrink-0">
