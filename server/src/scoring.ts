@@ -75,5 +75,14 @@ export function isCloseGuess(guess: string, answer: string): boolean {
 }
 
 function normalize(s: string): string {
-  return s.toLowerCase().replace(/\s+/g, ' ').trim();
+  return s
+    .toLowerCase()
+    .replace(/&/g, 'and')           // & → and (Cloak & Dagger = Cloak and Dagger)
+    .replace(/\./g, '')             // remove periods (Mr. → Mr)
+    .replace(/-/g, ' ')             // hyphens → spaces (Spider-Man → Spider Man)
+    .replace(/\bdoctor\b/g, 'dr')   // Doctor → Dr
+    .replace(/\bmister\b/g, 'mr')   // Mister → Mr
+    .replace(/\bthe\s+/g, '')       // strip "the " (The Punisher → Punisher)
+    .replace(/\s+/g, ' ')
+    .trim();
 }

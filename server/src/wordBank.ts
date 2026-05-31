@@ -247,6 +247,22 @@ export async function loadWordBank(): Promise<void> {
     }
 
     if (apiWords.length > 10) {
+      // Add extra aliases for heroes with common short/alternate names
+      const extraAliases: Record<string, string[]> = {
+        'jeff the land shark': ['Jeff', 'Jeff The Shark'],
+        'rocket raccoon': ['Rocket'],
+        'devil dinosaur': ['Devil Dino'],
+        'scarlet witch': ['Scarlet Witch', 'Wanda'],  // Wanda alone is common
+      };
+
+      for (const word of apiWords) {
+        const key = word.word.toLowerCase();
+        const extra = extraAliases[key];
+        if (extra) {
+          word.aliases = [...(word.aliases || []), ...extra];
+        }
+      }
+
       wordBank = apiWords;
       console.log(`[WordBank] Loaded ${apiWords.length} words from API`);
     } else {
