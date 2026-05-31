@@ -294,7 +294,7 @@ export default function GameBoard({
 
         {/* Mobile: Scoreboard slide-over */}
         {mobilePanel === 'scoreboard' && (
-          <div className="md:hidden absolute inset-0 z-40 flex">
+          <div className="md:hidden fixed inset-0 z-40 flex">
             <div className="w-72 max-w-[80%] bg-[var(--color-bg)] border-r border-[var(--color-border)] shadow-2xl overflow-y-auto p-3">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-[var(--color-text-muted)]">Scoreboard</h3>
@@ -311,11 +311,11 @@ export default function GameBoard({
           </div>
         )}
 
-        {/* Mobile: Chat slide-over — half screen with close button */}
+        {/* Mobile: Chat slide-over — anchored to bottom of viewport */}
         {mobilePanel === 'chat' && (
-          <div className="md:hidden absolute inset-0 z-40 flex flex-col">
+          <div className="md:hidden fixed inset-0 z-40 flex flex-col">
             <div className="flex-1 bg-black/40" onClick={() => setMobilePanel('none')} />
-            <div className="h-[55%] min-h-[250px] max-h-[70%] bg-[var(--color-bg)] border-t border-[var(--color-border)] shadow-2xl rounded-t-xl">
+            <div className="flex flex-col h-[55vh] min-h-[250px] max-h-[70vh] bg-[var(--color-bg)] border-t border-[var(--color-border)] shadow-2xl rounded-t-xl overflow-hidden">
               <Chat
                 messages={messages}
                 onGuess={onGuess}
