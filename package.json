@@ -11,6 +11,9 @@
     "start": "cd server && node dist/server/src/index.js",
     "install:all": "npm install && cd client && npm install && cd ../server && npm install"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "devDependencies": {
     "concurrently": "^9.1.0"
   }
