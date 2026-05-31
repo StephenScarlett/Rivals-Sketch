@@ -112,6 +112,32 @@ export function useSocket() {
       setData((d) => ({ ...d, settings, showHints: settings.showHints }));
     });
 
+    socket.on('rejoin-state', (state) => {
+      setData((d) => ({
+        ...d,
+        gameState: state.gameState,
+        players: state.players,
+        settings: state.settings,
+        round: state.round,
+        totalRounds: state.totalRounds,
+        drawTime: state.drawTime,
+        timeLeft: state.timeLeft,
+        currentDrawer: state.currentDrawer,
+        wordLength: state.wordLength,
+        category: state.category,
+        hint: state.hint || '_'.repeat(state.wordLength),
+        drawEvents: state.drawEvents,
+        messages: state.messages,
+        showHints: state.settings.showHints,
+        roundResult: null,
+        finalScores: null,
+        drawingRoundKey: d.drawingRoundKey + 1,
+        drawerWord: '',
+        drawerImageUrl: '',
+        drawerAliases: [],
+      }));
+    });
+
     socket.on('game-started', ({ state }) => {
       setData((d) => ({
         ...d,

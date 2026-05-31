@@ -61,7 +61,36 @@ export class GameManager {
         return;
       }
 
+      // If game is over, tell them
+      if (room.state === GameState.GAME_OVER) {
+        socket.emit('error', { message: 'That game has ended' });
+        return;
+      }
+
+      // If game is in progress, check for rejoin eligibility
       if (room.state !== GameState.LOBBY) {
+        if (room.canRejoin(nickname)) {
+          const player = room.rejoinPlayer(socket, nickname);
+          if (player) {
+            this.socketToRoom.set(socket.id, code);
+
+            // Send the rejoin state to the player
+            socket.emit('rejoin-state', room.getRejoinState());
+
+            // Notify everyone that the player reconnected
+            this.io.to(code).emit('player-joined', { players: room.getPlayersArray() });
+            this.io.to(code).emit('chat-message', {
+              id: `rejoin-${Date.now()}`,
+              sender: 'system',
+              text: `${nickname} reconnected!`,
+              type: 'system',
+              timestamp: Date.now(),
+            });
+
+            console.log(`[GameManager] ${nickname} rejoined room ${code}`);
+            return;
+          }
+        }
         socket.emit('error', { message: 'Game already in progress' });
         return;
       }

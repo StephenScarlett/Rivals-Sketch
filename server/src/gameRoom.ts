@@ -55,6 +55,11 @@ export class GameRoom {
   drawingStartTime = 0;
   drawEvents: DrawEvent[] = [];
   private pendingWordOptions: WordOption[] = [];
+  private chatHistory: ChatMessage[] = [];  // for rejoiners
+  private currentHint = '';  // last hint sent
+
+  // Disconnected players eligible to rejoin (nickname → saved player data)
+  private disconnectedPlayers = new Map<string, { score: number; wasHost: boolean; turnOrderIndex: number }>();
 
   // Timers
   private pickTimer: ReturnType<typeof setTimeout> | null = null;
@@ -83,6 +88,17 @@ export class GameRoom {
 
   private toSocket(socketId: string) {
     return this.io.to(socketId);
+  }
+
+  /** Broadcast a chat message and store it for rejoiners */
+  private broadcastChat(msg: ChatMessage): void {
+    this.chatHistory.push(msg);
+    this.room.emit('chat-message', msg);
+  }
+
+  /** Send a chat message to a single socket (e.g. close guess) */
+  private sendChatToSocket(socketId: string, msg: ChatMessage): void {
+    this.toSocket(socketId).emit('chat-message', msg);
   }
 
   getPlayersArray(): Player[] {
@@ -115,6 +131,16 @@ export class GameRoom {
     const player = this.players.get(socketId);
     if (!player) return undefined;
 
+    // If game is in progress, save player data for potential rejoin
+    if (this.state !== GameState.LOBBY) {
+      const turnIdx = this.turnOrder.indexOf(socketId);
+      this.disconnectedPlayers.set(player.nickname.toLowerCase(), {
+        score: player.score,
+        wasHost: player.isHost,
+        turnOrderIndex: turnIdx,
+      });
+    }
+
     this.players.delete(socketId);
 
     // If host left, transfer host
@@ -133,6 +159,85 @@ export class GameRoom {
     return player;
   }
 
+  /**
+   * Check if a nickname is eligible to rejoin this room.
+   */
+  canRejoin(nickname: string): boolean {
+    return this.disconnectedPlayers.has(nickname.toLowerCase());
+  }
+
+  /**
+   * Rejoin a disconnected player with a new socket.
+   */
+  rejoinPlayer(socket: Socket, nickname: string): Player | null {
+    const key = nickname.toLowerCase();
+    const saved = this.disconnectedPlayers.get(key);
+    if (!saved) return null;
+
+    this.disconnectedPlayers.delete(key);
+
+    // Determine if they should be host (only if no current host exists)
+    const hasHost = Array.from(this.players.values()).some((p) => p.isHost);
+
+    const player: Player = {
+      id: socket.id,
+      nickname,
+      score: saved.score,
+      hasGuessed: false,
+      isHost: !hasHost && saved.wasHost,
+      isDrawing: false,
+      isConnected: true,
+    };
+
+    this.players.set(socket.id, player);
+    socket.join(this.code);
+
+    // Update turn order: replace old socket ID with new one
+    if (saved.turnOrderIndex >= 0 && saved.turnOrderIndex < this.turnOrder.length) {
+      this.turnOrder[saved.turnOrderIndex] = socket.id;
+    }
+
+    return player;
+  }
+
+  /**
+   * Get the current game state for a rejoining player.
+   */
+  getRejoinState(): {
+    gameState: GameState;
+    players: Player[];
+    settings: RoomSettings;
+    round: number;
+    totalRounds: number;
+    drawTime: number;
+    timeLeft: number;
+    currentDrawer: Player | null;
+    wordLength: number;
+    category: string;
+    hint: string;
+    drawEvents: DrawEvent[];
+    messages: ChatMessage[];
+  } {
+    const drawerId = this.turnOrder[this.currentTurnIndex];
+    const drawer = this.players.get(drawerId) || null;
+
+    return {
+      gameState: this.state,
+      players: this.getPlayersArray(),
+      settings: this.settings,
+      round: this.currentRound,
+      totalRounds: this.settings.totalRounds,
+      drawTime: this.settings.drawTime,
+      timeLeft: this.timeLeft,
+      currentDrawer: drawer,
+      wordLength: this.currentWord?.word.length || 0,
+      category: this.currentWord?.category || '',
+      hint: this.currentHint,
+      drawEvents: this.drawEvents,
+      messages: this.chatHistory,
+    };
+  }
+
   updateSettings(settings: Partial<RoomSettings>): void {
     this.settings = { ...this.settings, ...settings };
   }
@@ -146,6 +251,9 @@ export class GameRoom {
     this.currentRound = 1;
     this.roundResults = [];
     this.usedWords.clear();
+    this.chatHistory = [];
+    this.currentHint = '';
+    this.disconnectedPlayers.clear();
     this.turnOrder = Array.from(this.players.keys());
     this.currentTurnIndex = 0;
 
@@ -231,7 +339,7 @@ export class GameRoom {
     this.room.emit('player-joined', { players: this.getPlayersArray() });
 
     // Send round divider chat message
-    this.room.emit('chat-message', {
+    this.broadcastChat({
       id: `round-${this.currentRound}-${this.currentTurnIndex}`,
       sender: 'system',
       text: `── Round ${this.currentRound}/${this.settings.totalRounds} ── ${drawer.nickname} is drawing ──`,
@@ -314,6 +422,7 @@ export class GameRoom {
       }
     }
 
+    this.currentHint = revealed;
     this.room.emit('hint', { revealed });
   }
 
@@ -374,7 +483,7 @@ export class GameRoom {
       this.room.emit('correct-guess', { player: player.nickname, scores });
 
       // System message
-      this.room.emit('chat-message', {
+      this.broadcastChat({
         id: Date.now().toString(),
         sender: 'system',
         text: `${player.nickname} guessed correctly!`,
@@ -398,7 +507,7 @@ export class GameRoom {
     if (isClose) {
       this.toSocket(socketId).emit('close-guess');
       // Show the guess only to the guesser so it doesn't give the answer away
-      this.toSocket(socketId).emit('chat-message', {
+      this.sendChatToSocket(socketId, {
         id: Date.now().toString() + socketId,
         sender: player.nickname,
         text: trimmed,
@@ -409,7 +518,7 @@ export class GameRoom {
     }
 
     // Broadcast as a regular chat message
-    this.room.emit('chat-message', {
+    this.broadcastChat({
       id: Date.now().toString() + socketId,
       sender: player.nickname,
       text: trimmed,
@@ -445,7 +554,7 @@ export class GameRoom {
 
     // Send answer reveal as chat message
     const guessCount = result.guessers.length;
-    this.room.emit('chat-message', {
+    this.broadcastChat({
       id: `answer-${Date.now()}`,
       sender: 'system',
       text: guessCount > 0
@@ -506,6 +615,9 @@ export class GameRoom {
     this.currentRound = 0;
     this.roundResults = [];
     this.usedWords.clear();
+    this.chatHistory = [];
+    this.currentHint = '';
+    this.disconnectedPlayers.clear();
     this.drawEvents = [];
     this.currentWord = null;
 

@@ -139,6 +139,21 @@ export interface ServerToClientEvents {
   'game-over': (data: { finalScores: Player[]; rounds: RoundResult[] }) => void;
   'chat-message': (data: ChatMessage) => void;
   'host-changed': (data: { hostId: string }) => void;
+  'rejoin-state': (data: {
+    gameState: GameState;
+    players: Player[];
+    settings: RoomSettings;
+    round: number;
+    totalRounds: number;
+    drawTime: number;
+    timeLeft: number;
+    currentDrawer: Player | null;
+    wordLength: number;
+    category: string;
+    hint: string;
+    drawEvents: DrawEvent[];
+    messages: ChatMessage[];
+  }) => void;
   'error': (data: { message: string }) => void;
 }
 
