@@ -259,7 +259,7 @@ export default function GameBoard({
         </div>
 
         {/* Mobile: Full-width canvas */}
-        <div className="md:hidden flex flex-col h-full">
+        <div className="md:hidden flex flex-col h-full pb-14">
           {/* Reference image banner for drawer on mobile */}
           {isDrawer && isDrawing && drawerImageUrl && (
             <div className="flex items-center gap-2 mb-2 p-2 rounded-lg bg-[var(--color-surface)] border border-purple-500/30 flex-shrink-0">
