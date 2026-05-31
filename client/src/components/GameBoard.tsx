@@ -279,6 +279,28 @@ export default function GameBoard({
               roundKey={drawingRoundKey}
             />
           </div>
+
+          {/* Reference image strip for drawer — below toolbar */}
+          {isDrawer && isDrawing && drawerImageUrl && (
+            <div className="flex items-center gap-2 mt-1 px-1.5 py-1 rounded-lg bg-[var(--color-surface)] border border-purple-500/30 flex-shrink-0">
+              <img
+                src={drawerImageUrl}
+                alt={drawerWord}
+                className="w-8 h-8 object-contain rounded bg-[var(--color-surface-light)]"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+              <span className="text-xs font-medium text-purple-300 truncate">
+                {drawerWord}
+              </span>
+              {drawerAliases.length > 0 && (
+                <span className="text-xs text-[var(--color-text-muted)] truncate ml-auto">
+                  Also: {drawerAliases.join(', ')}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Mobile: Scoreboard slide-over */}
