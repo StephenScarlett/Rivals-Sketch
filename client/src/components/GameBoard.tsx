@@ -135,9 +135,9 @@ export default function GameBoard({
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      {/* Top bar — compact branding + timer/drawer info combined */}
+      {/* App nav bar — always visible, separate from game info */}
       <div className="px-3 md:px-6 py-2 bg-[var(--color-surface)] border-b border-[var(--color-border)] flex-shrink-0">
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center">
           <button
             onClick={() => setShowLeaveConfirm(true)}
             className="text-base md:text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent flex-shrink-0 hover:opacity-80 transition-opacity"
@@ -145,72 +145,61 @@ export default function GameBoard({
           >
             ← Rivals Sketch
           </button>
+        </div>
+      </div>
 
-          {(isDrawing || gameState === 'PICKING_WORD' || gameState === 'ROUND_END') && (
-            <>
-              <div className="h-5 w-px bg-[var(--color-border)]" />
-              <span className="text-xs md:text-sm text-[var(--color-text-muted)] flex-shrink-0">
-                R{round}/{totalRounds}
+      {/* Game info bar — round, drawer, hints, timer */}
+      {(isDrawing || gameState === 'PICKING_WORD' || gameState === 'ROUND_END') && (
+        <div className="px-3 md:px-6 py-1.5 md:py-2 bg-[var(--color-surface-light)] border-b border-[var(--color-border)] flex-shrink-0">
+          <div className="flex items-center gap-2 md:gap-4">
+            <span className="text-xs md:text-sm text-[var(--color-text-muted)] flex-shrink-0">
+              Round {round}/{totalRounds}
+            </span>
+            <div className="h-4 w-px bg-[var(--color-border)]" />
+            {/* Who is drawing */}
+            {isDrawer ? (
+              <span className="text-xs md:text-sm px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium flex-shrink-0 truncate max-w-[180px] md:max-w-none">
+                🖌️ You're drawing{isDrawing ? `: ${drawerWord}` : ''}
               </span>
-              <div className="h-5 w-px bg-[var(--color-border)] hidden md:block" />
-              {/* Who is drawing */}
-              {isDrawer ? (
-                <span className="hidden md:inline text-sm px-3 py-1 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium flex-shrink-0">
-                  🖌️ You're drawing{isDrawing ? `: ${drawerWord}` : ''}
-                </span>
-              ) : currentDrawer ? (
-                <span className="text-xs md:text-sm px-2 md:px-3 py-1 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium flex-shrink-0 truncate max-w-[140px] md:max-w-none">
-                  🖌️ {currentDrawer.nickname}
-                </span>
-              ) : null}
+            ) : currentDrawer ? (
+              <span className="text-xs md:text-sm px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium flex-shrink-0 truncate max-w-[180px] md:max-w-none">
+                🖌️ {currentDrawer.nickname} is drawing
+              </span>
+            ) : null}
 
-              {/* Hints display — desktop only */}
-              {isDrawing && showHints && (
-                <>
-                  <div className="flex-1 hidden md:block" />
-                  <span className="hidden md:inline font-mono text-lg tracking-[0.2em] text-center text-[var(--color-text)] flex-shrink-0">
-                    {hintDisplay}
-                  </span>
-                </>
-              )}
+            {/* Hints display */}
+            {isDrawing && showHints && (
+              <>
+                <div className="flex-1" />
+                <span className="font-mono text-sm md:text-lg tracking-[0.15em] md:tracking-[0.2em] text-center text-[var(--color-text)] flex-shrink-0">
+                  {hintDisplay}
+                </span>
+              </>
+            )}
 
-              {/* Category tag — desktop only */}
-              {isDrawing && (
-                <span className="hidden md:inline text-xs text-[var(--color-text-muted)] ml-auto flex-shrink-0">{category}</span>
-              )}
-            </>
+            {/* Category tag — desktop only */}
+            {isDrawing && (
+              <span className="hidden md:inline text-xs text-[var(--color-text-muted)] ml-auto flex-shrink-0">{category}</span>
+            )}
+          </div>
+
+          {/* Drawer aliases on mobile */}
+          {isDrawer && isDrawing && drawerAliases.length > 0 && (
+            <div className="md:hidden mt-1">
+              <span className="text-xs text-[var(--color-text-muted)]">
+                Also accepts: {drawerAliases.join(', ')}
+              </span>
+            </div>
           )}
 
-          {!(isDrawing || gameState === 'PICKING_WORD' || gameState === 'ROUND_END') && (
-            <div className="flex-1" />
+          {/* Timer bar */}
+          {isDrawing && (
+            <div className="mt-1 md:mt-2">
+              <Timer timeLeft={timeLeft} drawTime={drawTime} />
+            </div>
           )}
         </div>
-
-        {/* Hint row on mobile — below the main bar */}
-        {isDrawing && showHints && hint && (
-          <div className="md:hidden mt-1 text-center">
-            <span className="font-mono text-sm tracking-[0.15em] text-[var(--color-text)]">
-              {hintDisplay}
-            </span>
-          </div>
-        )}
-
-        {/* Drawer word on mobile */}
-        {isDrawer && isDrawing && (
-          <div className="md:hidden mt-1">
-            <span className="text-xs px-2 py-0.5 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium">
-              Drawing: {drawerWord}
-            </span>
-          </div>
-        )}
-
-        {/* Timer bar integrated into header */}
-        {isDrawing && (
-          <div className="mt-1 md:mt-2">
-            <Timer timeLeft={timeLeft} drawTime={drawTime} />
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Main content */}
       <div className="flex-1 px-2 py-2 md:px-4 md:py-3 min-h-0 relative">
