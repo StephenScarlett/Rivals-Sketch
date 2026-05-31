@@ -7,6 +7,7 @@ interface ChatProps {
   isDrawer: boolean;
   isCloseGuess: boolean;
   disabled: boolean;
+  onClose?: () => void;
 }
 
 export default function Chat({
@@ -15,6 +16,7 @@ export default function Chat({
   isDrawer,
   isCloseGuess,
   disabled,
+  onClose,
 }: ChatProps) {
   const [input, setInput] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -45,8 +47,16 @@ export default function Chat({
 
   return (
     <div className="flex flex-col h-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-[var(--color-border)]">
+      <div className="px-4 py-2.5 border-b border-[var(--color-border)] flex items-center justify-between">
         <h3 className="text-sm font-semibold text-[var(--color-text-muted)]">Chat</h3>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg hover:bg-[var(--color-surface-light)] text-[var(--color-text-muted)] text-sm"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       {/* Messages */}
@@ -74,7 +84,7 @@ export default function Chat({
       )}
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="p-3 border-t border-[var(--color-border)]">
+      <form onSubmit={handleSubmit} className="p-3 border-t border-[var(--color-border)] flex gap-2">
         <input
           type="text"
           value={input}
@@ -88,8 +98,15 @@ export default function Chat({
           }
           disabled={isDrawer || disabled}
           maxLength={200}
-          className="w-full px-3 py-2 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-purple-500 disabled:opacity-50 transition text-sm"
+          className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-purple-500 disabled:opacity-50 transition text-sm"
         />
+        <button
+          type="submit"
+          disabled={isDrawer || disabled || !input.trim()}
+          className="px-3 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-medium transition flex-shrink-0"
+        >
+          Send
+        </button>
       </form>
     </div>
   );

@@ -109,6 +109,10 @@ export class GameRoom {
     return this.players.size;
   }
 
+  hasDisconnectedPlayers(): boolean {
+    return this.disconnectedPlayers.size > 0;
+  }
+
   // ---- Player management ----
 
   addPlayer(socket: Socket, nickname: string): Player {

@@ -9,10 +9,12 @@ import { GameRoom } from './gameRoom';
 const ROOM_CODE_LENGTH = 6;
 const ROOM_CLEANUP_INTERVAL = 60_000; // check every minute
 const EMPTY_ROOM_TTL = 300_000;       // delete after 5 min empty
+const REJOIN_ROOM_TTL = 600_000;      // keep room for 10 min if disconnected players exist
 
 export class GameManager {
   private rooms = new Map<string, GameRoom>();
   private socketToRoom = new Map<string, string>(); // socketId → roomCode
+  private roomEmptySince = new Map<string, number>(); // roomCode → timestamp when became empty
   private io: Server<ClientToServerEvents, ServerToClientEvents>;
 
   constructor(io: Server<ClientToServerEvents, ServerToClientEvents>) {
@@ -237,9 +239,22 @@ export class GameManager {
     const now = Date.now();
     for (const [code, room] of this.rooms) {
       if (room.getPlayerCount() === 0) {
-        room.destroy();
-        this.rooms.delete(code);
-        console.log(`[GameManager] Cleaned up empty room ${code}`);
+        if (!this.roomEmptySince.has(code)) {
+          this.roomEmptySince.set(code, now);
+        }
+        const emptySince = this.roomEmptySince.get(code)!;
+        const hasDisconnected = room.hasDisconnectedPlayers();
+        const ttl = hasDisconnected ? REJOIN_ROOM_TTL : EMPTY_ROOM_TTL;
+
+        if (now - emptySince >= ttl) {
+          room.destroy();
+          this.rooms.delete(code);
+          this.roomEmptySince.delete(code);
+          console.log(`[GameManager] Cleaned up empty room ${code} (had disconnected: ${hasDisconnected})`);
+        }
+      } else {
+        // Room has players, clear empty timestamp
+        this.roomEmptySince.delete(code);
       }
     }
   }

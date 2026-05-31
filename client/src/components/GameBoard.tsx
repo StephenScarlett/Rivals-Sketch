@@ -322,45 +322,40 @@ export default function GameBoard({
           </div>
         )}
 
-        {/* Mobile: Chat slide-over */}
+        {/* Mobile: Chat slide-over — half screen with close button */}
         {mobilePanel === 'chat' && (
           <div className="md:hidden absolute inset-0 z-40 flex flex-col">
-            <div className="h-8 bg-black/40" onClick={() => setMobilePanel('none')} />
-            <div className="flex-1 min-h-0 bg-[var(--color-bg)] border-t border-[var(--color-border)] shadow-2xl">
+            <div className="flex-1 bg-black/40" onClick={() => setMobilePanel('none')} />
+            <div className="h-[55%] min-h-[250px] max-h-[70%] bg-[var(--color-bg)] border-t border-[var(--color-border)] shadow-2xl rounded-t-xl">
               <Chat
                 messages={messages}
                 onGuess={onGuess}
                 isDrawer={isDrawer}
                 isCloseGuess={isCloseGuess}
                 disabled={!isDrawing}
+                onClose={() => setMobilePanel('none')}
               />
             </div>
           </div>
         )}
 
-        {/* Mobile: Floating toggle buttons */}
-        <div className="md:hidden fixed bottom-4 left-3 right-3 z-30 flex justify-between pointer-events-none">
-          <button
-            onClick={() => togglePanel('scoreboard')}
-            className={`pointer-events-auto flex items-center gap-1.5 px-3 py-2 rounded-full shadow-lg border text-sm font-medium transition ${
-              mobilePanel === 'scoreboard'
-                ? 'bg-purple-600 border-purple-500 text-white'
-                : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text)]'
-            }`}
-          >
-            👥 <span className="text-xs">{players.length}</span>
-          </button>
-          <button
-            onClick={() => togglePanel('chat')}
-            className={`pointer-events-auto flex items-center gap-1.5 px-3 py-2 rounded-full shadow-lg border text-sm font-medium transition ${
-              mobilePanel === 'chat'
-                ? 'bg-purple-600 border-purple-500 text-white'
-                : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text)]'
-            }`}
-          >
-            💬 <span className="text-xs">{messages.length}</span>
-          </button>
-        </div>
+        {/* Mobile: Floating toggle buttons — hidden when panel is open */}
+        {mobilePanel === 'none' && (
+          <div className="md:hidden fixed bottom-4 left-3 right-3 z-30 flex justify-between pointer-events-none" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+            <button
+              onClick={() => togglePanel('scoreboard')}
+              className="pointer-events-auto flex items-center gap-1.5 px-4 py-2.5 rounded-full shadow-lg border text-sm font-medium transition bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text)]"
+            >
+              👥 <span className="text-xs">{players.length}</span>
+            </button>
+            <button
+              onClick={() => togglePanel('chat')}
+              className="pointer-events-auto flex items-center gap-1.5 px-4 py-2.5 rounded-full shadow-lg border text-sm font-medium transition bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text)]"
+            >
+              💬 <span className="text-xs">{messages.length}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Overlays */}
