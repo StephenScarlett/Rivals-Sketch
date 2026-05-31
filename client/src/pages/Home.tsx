@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-interface HomeProps {
-  onCreateRoom: (nickname: string) => void;
-  onJoinRoom: (code: string, nickname: string) => void;
-  roomCode: string | null;
-}
-
-export default function Home({ onCreateRoom, onJoinRoom, roomCode }: HomeProps) {
+export default function Home() {
   const [nickname, setNickname] = useState(
     () => localStorage.getItem('rivals-nickname') || ''
   );
@@ -23,18 +17,15 @@ export default function Home({ onCreateRoom, onJoinRoom, roomCode }: HomeProps) 
 
   const handleCreate = () => {
     if (!nickname.trim()) return;
-    onCreateRoom(nickname.trim());
+    localStorage.setItem('rivals-nickname', nickname.trim());
+    navigate('/game/new');
   };
 
   const handleJoin = () => {
     if (!nickname.trim() || !joinCode.trim()) return;
-    onJoinRoom(joinCode.trim().toUpperCase(), nickname.trim());
+    localStorage.setItem('rivals-nickname', nickname.trim());
+    navigate(`/game/${joinCode.trim().toUpperCase()}`);
   };
-
-  // Navigate when room is created
-  if (roomCode && mode === 'create') {
-    navigate(`/game/${roomCode}`);
-  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">

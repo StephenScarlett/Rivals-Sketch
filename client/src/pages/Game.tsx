@@ -31,6 +31,7 @@ export default function Game() {
     isCloseGuess,
     myId,
     joinRoom,
+    createRoom,
     startGame,
     pickWord,
     sendDraw,
@@ -40,17 +41,28 @@ export default function Game() {
     playAgain,
   } = useSocket();
 
-  // Auto-join room from URL if we have a code and aren't in one yet
+  // Auto-create or auto-join room from URL
   useEffect(() => {
     if (connected && code && !roomCode && players.length === 0) {
       const nickname = localStorage.getItem('rivals-nickname');
       if (nickname) {
-        joinRoom(code, nickname);
+        if (code === 'new') {
+          createRoom(nickname);
+        } else {
+          joinRoom(code, nickname);
+        }
       } else {
         navigate('/');
       }
     }
-  }, [connected, code, roomCode, players.length, joinRoom, navigate]);
+  }, [connected, code, roomCode, players.length, joinRoom, createRoom, navigate]);
+
+  // Once room is created, update the URL from /game/new to /game/CODE
+  useEffect(() => {
+    if (code === 'new' && roomCode) {
+      navigate(`/game/${roomCode}`, { replace: true });
+    }
+  }, [code, roomCode, navigate]);
 
   const handleLeave = () => {
     leaveRoom();
