@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import Canvas from './Canvas';
 import Chat from './Chat';
+import Confetti from './Confetti';
 import Scoreboard from './Scoreboard';
 import Timer from './Timer';
 import WordPicker from './WordPicker';
@@ -45,6 +46,7 @@ interface GameBoardProps {
   drawerAliases: string[];
   drawingRoundKey: number;
   showHints: boolean;
+  showConfetti: boolean;
 
   // Actions
   onPickWord: (word: string) => void;
@@ -78,6 +80,7 @@ export default function GameBoard({
   drawerAliases,
   drawingRoundKey,
   showHints,
+  showConfetti,
   onPickWord,
   onDraw,
   onGuess,
@@ -100,6 +103,13 @@ export default function GameBoard({
   useEffect(() => {
     setMobilePanel('none');
   }, [gameState]);
+
+  // Close mobile chat when player guesses correctly (confetti fires)
+  useEffect(() => {
+    if (showConfetti) {
+      setMobilePanel('none');
+    }
+  }, [showConfetti]);
 
   // Build the hint display with spaces between chars
   const hintDisplay = hint
@@ -389,6 +399,9 @@ export default function GameBoard({
           </div>
         </div>
       )}
+
+      {/* Confetti celebration */}
+      {showConfetti && <Confetti />}
     </div>
   );
 }

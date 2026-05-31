@@ -37,6 +37,7 @@ export default function Game() {
     drawerAliases,
     drawingRoundKey,
     showHints,
+    showConfetti,
     joinRoom,
     createRoom,
     startGame,
@@ -190,6 +191,7 @@ export default function Game() {
       drawerAliases={drawerAliases}
       drawingRoundKey={drawingRoundKey}
       showHints={showHints}
+      showConfetti={showConfetti}
       onPickWord={pickWord}
       onDraw={sendDraw}
       onGuess={sendGuess}

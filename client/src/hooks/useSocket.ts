@@ -39,6 +39,7 @@ export interface GameData {
   drawerAliases: string[];
   drawingRoundKey: number;
   showHints: boolean;
+  showConfetti: boolean;
 }
 
 export function useSocket() {
@@ -70,6 +71,7 @@ export function useSocket() {
     drawerAliases: [],
     drawingRoundKey: 0,
     showHints: false,
+    showConfetti: false,
   });
 
   useEffect(() => {
@@ -171,6 +173,7 @@ export function useSocket() {
           drawEvents: [],
           roundResult: null,
           isCloseGuess: false,
+          showConfetti: false,
           drawingRoundKey: d.drawingRoundKey + 1,
           // Clear drawer info for guessers; drawer will get it via drawer-word event
           ...(amDrawer
@@ -198,6 +201,7 @@ export function useSocket() {
 
     socket.on('correct-guess', ({ scores }) => {
       setData((d) => {
+        const myScore = scores.find((s: ScoreUpdate) => s.playerId === socket.id);
         const updatedPlayers = d.players.map((p) => {
           const update = scores.find((s: ScoreUpdate) => s.playerId === p.id);
           if (update) {
@@ -205,8 +209,15 @@ export function useSocket() {
           }
           return p;
         });
-        return { ...d, players: updatedPlayers };
+        return { ...d, players: updatedPlayers, showConfetti: myScore ? true : d.showConfetti };
       });
+      // Auto-clear confetti after animation
+      const myScore = scores.find((s: ScoreUpdate) => s.playerId === socket.id);
+      if (myScore) {
+        setTimeout(() => {
+          setData((d) => ({ ...d, showConfetti: false }));
+        }, 3000);
+      }
     });
 
     socket.on('close-guess', () => {
