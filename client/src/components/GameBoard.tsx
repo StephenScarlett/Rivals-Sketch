@@ -42,6 +42,7 @@ interface GameBoardProps {
   isCloseGuess: boolean;
   drawerWord: string;
   drawerImageUrl: string;
+  drawerAliases: string[];
   drawingRoundKey: number;
   showHints: boolean;
 
@@ -74,6 +75,7 @@ export default function GameBoard({
   isCloseGuess,
   drawerWord,
   drawerImageUrl,
+  drawerAliases,
   drawingRoundKey,
   showHints,
   onPickWord,
@@ -122,85 +124,94 @@ export default function GameBoard({
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      {/* Top bar */}
-      <div className="px-6 py-2.5 bg-[var(--color-surface)] border-b border-[var(--color-border)] flex-shrink-0">
+      {/* Top bar — compact branding + timer/drawer info combined */}
+      <div className="px-6 py-2 bg-[var(--color-surface)] border-b border-[var(--color-border)] flex-shrink-0">
         <div className="flex items-center gap-4">
-          <h1 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h1 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent flex-shrink-0">
             Rivals Sketch
           </h1>
 
-          {/* Always show round info and who's drawing when in-game */}
           {(isDrawing || gameState === 'PICKING_WORD' || gameState === 'ROUND_END') && (
             <>
               <div className="h-5 w-px bg-[var(--color-border)]" />
-              <div className="text-sm text-[var(--color-text-muted)]">
+              <span className="text-sm text-[var(--color-text-muted)] flex-shrink-0">
                 Round {round}/{totalRounds}
-              </div>
+              </span>
               <div className="h-5 w-px bg-[var(--color-border)]" />
-              <div className="flex items-center gap-2">
-                {isDrawer ? (
-                  <span className="text-sm px-3 py-1 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium">
-                    🖌️ You're drawing{isDrawing ? `: ${drawerWord}` : ''}
+              {/* Who is drawing */}
+              {isDrawer ? (
+                <span className="text-sm px-3 py-1 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium flex-shrink-0">
+                  🖌️ You're drawing{isDrawing ? `: ${drawerWord}` : ''}
+                </span>
+              ) : currentDrawer ? (
+                <span className="text-sm px-3 py-1 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium flex-shrink-0">
+                  🖌️ {currentDrawer.nickname} is drawing
+                </span>
+              ) : null}
+
+              {/* Hints display */}
+              {isDrawing && showHints && (
+                <>
+                  <div className="flex-1" />
+                  <span className="font-mono text-lg tracking-[0.2em] text-center text-[var(--color-text)] flex-shrink-0">
+                    {hintDisplay}
                   </span>
-                ) : currentDrawer ? (
-                  <span className="text-sm px-3 py-1 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium">
-                    🖌️ {currentDrawer.nickname} is drawing
-                  </span>
-                ) : null}
-              </div>
+                </>
+              )}
+
+              {/* Category tag */}
+              {isDrawing && (
+                <span className="text-xs text-[var(--color-text-muted)] ml-auto flex-shrink-0">{category}</span>
+              )}
             </>
           )}
 
-          <div className="flex-1" />
+          {!(isDrawing || gameState === 'PICKING_WORD' || gameState === 'ROUND_END') && (
+            <div className="flex-1" />
+          )}
         </div>
-      </div>
 
-      {/* Word hint + Timer */}
-      {isDrawing && (
-        <div className="px-6 py-2 bg-[var(--color-surface-light)] border-b border-[var(--color-border)] flex-shrink-0">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-[var(--color-text-muted)]">{category}</span>
-              {showHints && (
-                <span className="font-mono text-xl tracking-[0.2em] text-center flex-1">
-                  {hintDisplay}
-                </span>
-              )}
-              {!showHints && <div className="flex-1" />}
-              <div className="w-24" />
-            </div>
+        {/* Timer bar integrated into header */}
+        {isDrawing && (
+          <div className="mt-2">
             <Timer timeLeft={timeLeft} drawTime={drawTime} />
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Main content — full width, no max-w constraint */}
+      {/* Main content — full width */}
       <div className="flex-1 px-4 py-3 min-h-0">
-        <div className="grid grid-cols-[220px_1fr_300px] gap-4 h-full">
-          {/* Left: Scoreboard */}
-          <div className="min-h-0 overflow-y-auto">
+        <div className="grid grid-cols-[240px_1fr_300px] gap-4 h-full">
+          {/* Left: Scoreboard + Reference Image */}
+          <div className="flex flex-col gap-3 min-h-0 overflow-y-auto">
             <Scoreboard players={players} myId={myId} />
-          </div>
 
-          {/* Center: Canvas + Reference Image */}
-          <div className="flex flex-col gap-3 min-h-0">
-            {/* Reference image for drawer — larger and more prominent */}
+            {/* Reference image for drawer — placed under scoreboard to fill space */}
             {isDrawer && isDrawing && drawerImageUrl && (
-              <div className="flex items-center gap-4 px-5 py-3 rounded-xl bg-[var(--color-surface)] border border-purple-500/30 flex-shrink-0">
+              <div className="rounded-xl bg-[var(--color-surface)] border border-purple-500/30 overflow-hidden flex-shrink-0">
                 <img
                   src={drawerImageUrl}
                   alt={drawerWord}
-                  className="w-24 h-24 object-contain rounded-lg bg-[var(--color-surface-light)] p-1"
+                  className="w-full object-contain bg-[var(--color-surface-light)]"
+                  style={{ maxHeight: '200px' }}
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
-                <div>
-                  <p className="text-base font-semibold text-purple-300">Reference Image</p>
-                  <p className="text-sm text-[var(--color-text-muted)]">Draw: <strong className="text-[var(--color-text)]">{drawerWord}</strong></p>
+                <div className="px-3 py-2">
+                  <p className="text-sm font-semibold text-purple-300">Draw: {drawerWord}</p>
+                  {drawerAliases.length > 0 && (
+                    <p className="text-xs text-[var(--color-text-muted)]">
+                      Also accepts: {drawerAliases.join(', ')}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Center: Canvas */}
+          <div className="flex flex-col min-h-0">
             <div className="flex-1 min-h-0">
               <Canvas
                 ref={canvasRef}

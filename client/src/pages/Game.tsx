@@ -34,6 +34,7 @@ export default function Game() {
     myId,
     drawerWord,
     drawerImageUrl,
+    drawerAliases,
     drawingRoundKey,
     showHints,
     joinRoom,
@@ -186,6 +187,7 @@ export default function Game() {
       isCloseGuess={isCloseGuess}
       drawerWord={drawerWord}
       drawerImageUrl={drawerImageUrl}
+      drawerAliases={drawerAliases}
       drawingRoundKey={drawingRoundKey}
       showHints={showHints}
       onPickWord={pickWord}

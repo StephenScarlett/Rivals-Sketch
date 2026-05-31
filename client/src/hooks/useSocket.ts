@@ -36,6 +36,7 @@ export interface GameData {
   myId: string | null;
   drawerWord: string;
   drawerImageUrl: string;
+  drawerAliases: string[];
   drawingRoundKey: number;
   showHints: boolean;
 }
@@ -66,6 +67,7 @@ export function useSocket() {
     myId: null,
     drawerWord: '',
     drawerImageUrl: '',
+    drawerAliases: [],
     drawingRoundKey: 0,
     showHints: false,
   });
@@ -147,16 +149,17 @@ export function useSocket() {
           // Clear drawer info for guessers; drawer will get it via drawer-word event
           ...(amDrawer
             ? { drawerImageUrl: d.drawerImageUrl || imageUrl || '' }
-            : { drawerWord: '', drawerImageUrl: '' }),
+            : { drawerWord: '', drawerImageUrl: '', drawerAliases: [] }),
         };
       });
     });
 
-    socket.on('drawer-word', ({ word, imageUrl }) => {
+    socket.on('drawer-word', ({ word, imageUrl, aliases }) => {
       setData((d) => ({
         ...d,
         drawerWord: word,
         drawerImageUrl: imageUrl || d.drawerImageUrl || '',
+        drawerAliases: aliases || [],
       }));
     });
 

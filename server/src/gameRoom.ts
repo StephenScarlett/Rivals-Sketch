@@ -250,10 +250,11 @@ export class GameRoom {
       imageUrl: this.currentWord.imageUrl,
     });
 
-    // Send the actual word only to the drawer
+    // Send the actual word only to the drawer (include aliases if any)
     this.toSocket(drawerId).emit('drawer-word', {
       word: this.currentWord.word,
       imageUrl: this.currentWord.imageUrl,
+      aliases: this.currentWord.aliases,
     });
 
     // Start countdown timer
@@ -338,8 +339,14 @@ export class GameRoom {
     const trimmed = message.trim();
     if (!trimmed) return;
 
-    // Check for correct guess
-    if (isCorrectGuess(trimmed, this.currentWord.word)) {
+    // Check for correct guess (including aliases like real names)
+    const allAnswers = [this.currentWord.word];
+    if (this.currentWord.aliases) {
+      allAnswers.push(...this.currentWord.aliases);
+    }
+    const isCorrect = allAnswers.some((answer) => isCorrectGuess(trimmed, answer));
+
+    if (isCorrect) {
       player.hasGuessed = true;
 
       const elapsedMs = Date.now() - this.drawingStartTime;
@@ -386,8 +393,9 @@ export class GameRoom {
       return;
     }
 
-    // Check for close guess — only tell the guesser, don't broadcast their text
-    if (isCloseGuess(trimmed, this.currentWord.word)) {
+    // Check for close guess against word and all aliases — only tell the guesser, don't broadcast their text
+    const isClose = allAnswers.some((answer) => isCloseGuess(trimmed, answer));
+    if (isClose) {
       this.toSocket(socketId).emit('close-guess');
       // Show the guess only to the guesser so it doesn't give the answer away
       this.toSocket(socketId).emit('chat-message', {

@@ -63,6 +63,7 @@ export interface WordOption {
   category: WordCategory;
   difficulty: Difficulty;
   imageUrl?: string;     // reference image for the drawer
+  aliases?: string[];    // alternative accepted answers (e.g. real name for a hero)
 }
 
 // ---- Drawing ----
@@ -129,7 +130,7 @@ export interface ServerToClientEvents {
     imageUrl?: string;
   }) => void;
   'draw': (data: DrawEvent) => void;
-  'drawer-word': (data: { word: string; imageUrl?: string }) => void;
+  'drawer-word': (data: { word: string; imageUrl?: string; aliases?: string[] }) => void;
   'correct-guess': (data: { player: string; scores: ScoreUpdate[] }) => void;
   'close-guess': () => void;
   'hint': (data: { revealed: string }) => void;

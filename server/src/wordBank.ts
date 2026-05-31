@@ -2,7 +2,9 @@ import { WordOption, WordCategory, Difficulty } from '../../shared/types';
 
 // In-memory word bank, loaded on server start
 let wordBank: WordOption[] = [];
-const realNameWords = new Set<string>(); // track words that are real/human names
+
+// Map from hero slug name (lowercase) to its real name alias
+const heroRealNames = new Map<string, string>();
 
 // Hardcoded fallback words if the API is unreachable
 const FALLBACK_WORDS: WordOption[] = [
@@ -146,11 +148,24 @@ export async function loadWordBank(): Promise<void> {
         .join(' ');
     }
 
-    function addWord(word: string, category: WordCategory, diff: Difficulty, imageUrl?: string) {
+    function addWord(word: string, category: WordCategory, diff: Difficulty, imageUrl?: string, aliases?: string[]) {
       const key = word.toLowerCase();
       if (seenWords.has(key) || word.length < 3) return;
       seenWords.add(key);
-      apiWords.push({ word, category, difficulty: diff, imageUrl });
+      apiWords.push({ word, category, difficulty: diff, imageUrl, aliases });
+    }
+
+    /**
+     * Strip quoted nicknames from real names.
+     * e.g. 'Steven "steve" Rogers' → 'Steven Rogers'
+     * Also handles single quotes and various quote styles.
+     */
+    function cleanRealName(name: string): string {
+      return name
+        .replace(/\s*[""\u201C\u201D][^""\u201C\u201D]*[""\u201C\u201D]\s*/g, ' ')
+        .replace(/\s*['''\u2018\u2019][^'''\u2018\u2019]*['''\u2018\u2019]\s*/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
     }
 
     for (const hero of heroes) {
@@ -162,14 +177,18 @@ export async function loadWordBank(): Promise<void> {
       const heroName = titleCase(hero.name || hero.id);
       const wordLen = heroName.length;
       const difficulty = wordLen <= 5 ? Difficulty.EASY : wordLen <= 12 ? Difficulty.MEDIUM : Difficulty.HARD;
-      addWord(heroName, WordCategory.HEROES, difficulty, imageUrl);
 
-      // Also add real_name if different (e.g., "Bruce Banner") — tagged so we can filter later
-      const realName = hero.real_name || '';
-      if (realName && realName.toLowerCase() !== heroName.toLowerCase()) {
-        realNameWords.add(realName.toLowerCase());
-        addWord(realName, WordCategory.HEROES, difficulty, imageUrl);
+      // Process real name — store as alias, not a separate word
+      const rawRealName = hero.real_name || '';
+      const cleanedName = cleanRealName(rawRealName);
+      let aliases: string[] | undefined;
+
+      if (cleanedName && cleanedName.toLowerCase() !== heroName.toLowerCase()) {
+        aliases = [cleanedName];
+        heroRealNames.set(heroName.toLowerCase(), cleanedName);
       }
+
+      addWord(heroName, WordCategory.HEROES, difficulty, imageUrl, aliases);
 
       // Add abilities (skip collab abilities to avoid duplication)
       if (hero.abilities && Array.isArray(hero.abilities)) {
@@ -249,22 +268,26 @@ export function getRandomWords(
   let pool = wordBank.filter(
     (w) =>
       categories.includes(w.category) &&
-      !usedWords.has(w.word) &&
-      (useRealNames || !realNameWords.has(w.word.toLowerCase()))
+      !usedWords.has(w.word)
   );
 
   // If pool is too small, allow repeats
   if (pool.length < count) {
     pool = wordBank.filter(
-      (w) =>
-        categories.includes(w.category) &&
-        (useRealNames || !realNameWords.has(w.word.toLowerCase()))
+      (w) => categories.includes(w.category)
     );
   }
 
   // Shuffle and pick
   const shuffled = pool.sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
+  const picked = shuffled.slice(0, count);
+
+  // If useRealNames is enabled, include aliases on hero words
+  // If disabled, strip aliases so only the hero name is accepted
+  return picked.map((w) => ({
+    ...w,
+    aliases: useRealNames ? w.aliases : undefined,
+  }));
 }
 
 export function getWordBank(): WordOption[] {

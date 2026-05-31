@@ -176,8 +176,8 @@ export default function Lobby({
                 disabled={!isHost}
                 className="w-4 h-4 rounded accent-purple-600"
               />
-              <span className="text-sm text-[var(--color-text)]">Include real names</span>
-              <span className="text-xs text-[var(--color-text-muted)]">(e.g. Bruce Banner instead of Hulk)</span>
+              <span className="text-sm text-[var(--color-text)]">Accept real names as answers</span>
+              <span className="text-xs text-[var(--color-text-muted)]">(e.g. guessing Bruce Banner for Hulk)</span>
             </label>
           </div>
         )}
