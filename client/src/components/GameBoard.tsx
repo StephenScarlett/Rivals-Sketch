@@ -212,7 +212,7 @@ export default function GameBoard({
       )}
 
       {/* Main content */}
-      <div className="flex-1 px-2 py-2 md:px-4 md:py-3 min-h-0 relative">
+      <div className="flex-1 px-2 py-1 md:px-4 md:py-3 min-h-0 relative">
         {/* Desktop: 3-column grid */}
         <div className="hidden md:grid grid-cols-[240px_1fr_300px] gap-4 h-full">
           {/* Left: Scoreboard + Reference Image */}
@@ -270,27 +270,6 @@ export default function GameBoard({
 
         {/* Mobile: Full-width canvas */}
         <div className="md:hidden flex flex-col h-full pb-12">
-          {/* Reference image banner for drawer on mobile */}
-          {isDrawer && isDrawing && drawerImageUrl && (
-            <div className="flex items-center gap-2 mb-2 p-2 rounded-lg bg-[var(--color-surface)] border border-purple-500/30 flex-shrink-0">
-              <img
-                src={drawerImageUrl}
-                alt={drawerWord}
-                className="w-10 h-10 object-contain rounded-lg bg-[var(--color-surface-light)]"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-              <div className="min-w-0">
-                {drawerAliases.length > 0 && (
-                  <p className="text-xs text-[var(--color-text-muted)] truncate">
-                    Also accepts: {drawerAliases.join(', ')}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
           <div className="flex-1 min-h-0">
             <Canvas
               ref={canvasRef}
