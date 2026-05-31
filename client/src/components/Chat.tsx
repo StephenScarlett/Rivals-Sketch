@@ -98,12 +98,12 @@ export default function Chat({
           }
           disabled={isDrawer || disabled}
           maxLength={200}
-          className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-purple-500 disabled:opacity-50 transition text-sm"
+          className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-yellow-500 disabled:opacity-50 transition text-sm"
         />
         <button
           type="submit"
           disabled={isDrawer || disabled || !input.trim()}
-          className="px-3 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-medium transition flex-shrink-0"
+          className="px-3 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 disabled:opacity-30 disabled:cursor-not-allowed text-gray-900 text-sm font-medium transition flex-shrink-0"
         >
           Send
         </button>

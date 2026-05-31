@@ -42,7 +42,7 @@ export default function GameOver({
               className="w-full object-contain bg-white"
             />
             <div className="px-6 py-4">
-              <p className="text-xl font-bold text-purple-300">{selectedSnap.word}</p>
+              <p className="text-xl font-bold text-yellow-300">{selectedSnap.word}</p>
               <p className="text-sm text-[var(--color-text-muted)]">
                 drawn by {selectedSnap.drawerNickname}
               </p>
@@ -57,7 +57,7 @@ export default function GameOver({
     <div className="fixed inset-0 z-50 bg-black/80 overflow-y-auto">
       <div className="min-h-full flex items-start justify-center p-4 py-8">
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-8 max-w-2xl w-full shadow-2xl">
-          <h2 className="text-3xl font-bold text-center mb-6 bg-gradient-to-r from-yellow-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold text-center mb-6 text-yellow-400">
             Game Over!
           </h2>
 
@@ -77,7 +77,7 @@ export default function GameOver({
                 </span>
                 <span
                   className={`flex-1 font-semibold text-lg ${
-                    player.id === myId ? 'text-purple-300' : ''
+                    player.id === myId ? 'text-yellow-300' : ''
                   }`}
                 >
                   {player.nickname}
@@ -101,7 +101,7 @@ export default function GameOver({
                   <button
                     key={i}
                     onClick={() => setSelectedSnap(snap)}
-                    className="rounded-xl overflow-hidden bg-[var(--color-surface-light)] border border-[var(--color-border)] hover:border-purple-500/50 transition text-left cursor-pointer"
+                    className="rounded-xl overflow-hidden bg-[var(--color-surface-light)] border border-[var(--color-border)] hover:border-yellow-500/50 transition text-left cursor-pointer"
                   >
                     <img
                       src={snap.dataUrl}
@@ -109,7 +109,7 @@ export default function GameOver({
                       className="w-full aspect-[4/3] object-contain bg-white"
                     />
                     <div className="px-3 py-2">
-                      <p className="text-sm font-semibold text-purple-300">{snap.word}</p>
+                      <p className="text-sm font-semibold text-yellow-300">{snap.word}</p>
                       <p className="text-xs text-[var(--color-text-muted)]">
                         drawn by {snap.drawerNickname}
                       </p>
@@ -125,7 +125,7 @@ export default function GameOver({
             {isHost && (
               <button
                 onClick={onPlayAgain}
-                className="w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold text-lg transition"
+                className="w-full py-3 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-semibold text-lg transition"
               >
                 Play Again
               </button>

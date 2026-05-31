@@ -24,7 +24,7 @@ export default function RoundSummary({ result }: RoundSummaryProps) {
               }}
             />
           )}
-          <p className="text-3xl font-bold text-purple-400">{result.word}</p>
+          <p className="text-3xl font-bold text-yellow-400">{result.word}</p>
           <p className="text-sm text-[var(--color-text-muted)]">
             {result.category} • drawn by {result.drawerNickname}
           </p>

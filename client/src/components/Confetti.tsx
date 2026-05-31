@@ -13,7 +13,7 @@ interface Particle {
   opacity: number;
 }
 
-const COLORS = ['#8b5cf6', '#ec4899', '#eab308', '#22c55e', '#3b82f6', '#ef4444', '#f97316', '#06b6d4'];
+const COLORS = ['#eab308', '#facc15', '#fde047', '#22c55e', '#3b82f6', '#ef4444', '#f97316', '#06b6d4'];
 const PARTICLE_COUNT = 80;
 
 export default function Confetti() {

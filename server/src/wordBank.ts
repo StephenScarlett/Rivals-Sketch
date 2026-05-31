@@ -253,6 +253,8 @@ export async function loadWordBank(): Promise<void> {
         'rocket raccoon': ['Rocket'],
         'devil dinosaur': ['Devil Dino'],
         'scarlet witch': ['Scarlet Witch', 'Wanda'],  // Wanda alone is common
+        'human torch': ['Johnny Storm'],
+        'captain america': ['Steve Rogers'],
       };
 
       for (const word of apiWords) {

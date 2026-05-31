@@ -111,8 +111,9 @@ export default function Game() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-8 shadow-2xl text-center">
-          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-400 via-red-400 to-yellow-400 bg-clip-text text-transparent">
-            Rivals Sketch
+          <h1 className="text-3xl font-bold mb-2">
+            <span className="text-yellow-400">Rivals</span>{' '}
+            <span className="text-white">Sketch</span>
           </h1>
           <p className="text-[var(--color-text-muted)] text-sm mb-6">Enter a nickname to join the game</p>
           <input
@@ -123,12 +124,12 @@ export default function Game() {
             placeholder="Enter nickname..."
             maxLength={20}
             autoFocus
-            className="w-full px-4 py-3 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-purple-500 transition mb-4"
+            className="w-full px-4 py-3 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-yellow-500 transition mb-4"
           />
           <button
             onClick={handleNicknameSubmit}
             disabled={!pendingNickname.trim()}
-            className="w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-lg transition"
+            className="w-full py-3 rounded-lg bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed text-gray-900 font-semibold text-lg transition"
           >
             Join Game
           </button>

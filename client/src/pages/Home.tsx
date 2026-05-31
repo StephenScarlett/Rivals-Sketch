@@ -31,8 +31,9 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       {/* Title */}
       <div className="text-center mb-12">
-        <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-purple-400 via-red-400 to-yellow-400 bg-clip-text text-transparent">
-          Rivals Sketch
+        <h1 className="text-6xl font-bold mb-2">
+          <span className="text-yellow-400">Rivals</span>{' '}
+          <span className="text-white">Sketch</span>
         </h1>
         <p className="text-[var(--color-text-muted)] text-lg">
           Draw & guess Marvel Rivals heroes with friends
@@ -54,14 +55,14 @@ export default function Home() {
                 onChange={(e) => handleNicknameChange(e.target.value)}
                 placeholder="Enter nickname..."
                 maxLength={20}
-                className="w-full px-4 py-3 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-purple-500 transition"
+                className="w-full px-4 py-3 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-yellow-500 transition"
               />
             </div>
 
             <button
               onClick={handleCreate}
               disabled={!nickname.trim()}
-              className="w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-lg transition"
+              className="w-full py-3 rounded-lg bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed text-gray-900 font-semibold text-lg transition"
             >
               Create Game
             </button>
@@ -94,13 +95,13 @@ export default function Home() {
                 onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                 placeholder="Enter 6-character code..."
                 maxLength={6}
-                className="w-full px-4 py-3 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-purple-500 transition text-center text-2xl tracking-[0.3em] font-mono"
+                className="w-full px-4 py-3 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-yellow-500 transition text-center text-2xl tracking-[0.3em] font-mono"
               />
             </div>
             <button
               onClick={handleJoin}
               disabled={joinCode.length < 6}
-              className="w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-lg transition"
+              className="w-full py-3 rounded-lg bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed text-gray-900 font-semibold text-lg transition"
             >
               Join Room
             </button>

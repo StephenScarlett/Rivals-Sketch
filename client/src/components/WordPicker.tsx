@@ -19,7 +19,7 @@ export default function WordPicker({ words, onPick }: WordPickerProps) {
             <button
               key={word.word}
               onClick={() => onPick(word.word)}
-              className="flex flex-col items-center gap-1.5 md:gap-3 p-2.5 md:p-5 rounded-xl bg-[var(--color-surface-light)] border border-[var(--color-border)] hover:border-purple-500 hover:bg-purple-600/10 transition group"
+              className="flex flex-col items-center gap-1.5 md:gap-3 p-2.5 md:p-5 rounded-xl bg-[var(--color-surface-light)] border border-[var(--color-border)] hover:border-yellow-500 hover:bg-yellow-500/10 transition group"
             >
               {word.imageUrl && (
                 <img
@@ -31,7 +31,7 @@ export default function WordPicker({ words, onPick }: WordPickerProps) {
                   }}
                 />
               )}
-              <span className="font-semibold text-sm md:text-lg group-hover:text-purple-300 transition text-center leading-tight">
+              <span className="font-semibold text-sm md:text-lg group-hover:text-yellow-300 transition text-center leading-tight">
                 {word.word}
               </span>
               <span className="text-xs text-[var(--color-text-muted)] hidden md:inline">

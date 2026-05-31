@@ -350,7 +350,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(function Canvas(
                 }}
                 className={`w-5 h-5 md:w-7 md:h-7 rounded-full border-2 transition ${
                   color === c && tool === 'brush'
-                    ? 'border-purple-400 scale-110'
+                    ? 'border-yellow-400 scale-110'
                     : 'border-[var(--color-border)]'
                 }`}
                 style={{ backgroundColor: c }}
@@ -368,7 +368,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(function Canvas(
                 onClick={() => setBrushSize(size)}
                 className={`flex items-center justify-center w-6 h-6 md:w-8 md:h-8 rounded-lg transition ${
                   brushSize === size
-                    ? 'bg-purple-600'
+                    ? 'bg-yellow-500'
                     : 'bg-[var(--color-surface-light)] hover:bg-[var(--color-border)]'
                 }`}
               >
@@ -388,7 +388,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(function Canvas(
             onClick={() => setTool('brush')}
             className={`px-1.5 md:px-3 py-1 md:py-1.5 rounded-lg text-xs md:text-sm font-medium transition ${
               tool === 'brush'
-                ? 'bg-purple-600 text-white'
+                ? 'bg-yellow-500 text-gray-900'
                 : 'bg-[var(--color-surface-light)] hover:bg-[var(--color-border)]'
             }`}
           >
@@ -398,7 +398,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(function Canvas(
             onClick={() => setTool('eraser')}
             className={`px-1.5 md:px-3 py-1 md:py-1.5 rounded-lg text-xs md:text-sm font-medium transition ${
               tool === 'eraser'
-                ? 'bg-purple-600 text-white'
+                ? 'bg-yellow-500 text-gray-900'
                 : 'bg-[var(--color-surface-light)] hover:bg-[var(--color-border)]'
             }`}
           >
@@ -408,7 +408,7 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(function Canvas(
             onClick={() => setTool('fill')}
             className={`px-1.5 md:px-3 py-1 md:py-1.5 rounded-lg text-xs md:text-sm font-medium transition ${
               tool === 'fill'
-                ? 'bg-purple-600 text-white'
+                ? 'bg-yellow-500 text-gray-900'
                 : 'bg-[var(--color-surface-light)] hover:bg-[var(--color-border)]'
             }`}
           >

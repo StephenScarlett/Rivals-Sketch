@@ -36,7 +36,7 @@ export default function Lobby({
         {/* Room Code */}
         <div className="text-center mb-6">
           <p className="text-sm text-[var(--color-text-muted)] mb-1">Room Code</p>
-          <p className="text-4xl font-mono font-bold tracking-[0.3em] text-purple-400">
+          <p className="text-4xl font-mono font-bold tracking-[0.3em] text-yellow-400">
             {roomCode}
           </p>
           <button
@@ -58,7 +58,7 @@ export default function Lobby({
                 key={player.id}
                 className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)]"
               >
-                <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-sm font-bold">
+                <div className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-sm font-bold text-gray-900">
                   {player.nickname[0].toUpperCase()}
                 </div>
                 <span className="font-medium flex-1">{player.nickname}</span>
@@ -139,9 +139,9 @@ export default function Lobby({
                       disabled={!isHost}
                       className={`px-3 py-1.5 rounded-lg text-sm font-medium transition border ${
                         active
-                          ? 'bg-purple-600 border-purple-500 text-white'
+                          ? 'bg-yellow-500 border-yellow-500 text-gray-900'
                           : 'bg-[var(--color-surface-light)] border-[var(--color-border)] text-[var(--color-text-muted)]'
-                      } ${isHost ? 'hover:border-purple-500 cursor-pointer' : 'cursor-default'}`}
+                      } ${isHost ? 'hover:border-yellow-500 cursor-pointer' : 'cursor-default'}`}
                     >
                       {cat}
                     </button>
@@ -159,7 +159,7 @@ export default function Lobby({
                   if (isHost) onUpdateSettings({ showHints: e.target.checked });
                 }}
                 disabled={!isHost}
-                className="w-4 h-4 rounded accent-purple-600"
+                className="w-4 h-4 rounded accent-yellow-500"
               />
               <span className="text-sm text-[var(--color-text)]">Show letter hints</span>
               <span className="text-xs text-[var(--color-text-muted)]">(reveals letters over time)</span>
@@ -174,7 +174,7 @@ export default function Lobby({
                   if (isHost) onUpdateSettings({ useRealNames: e.target.checked });
                 }}
                 disabled={!isHost}
-                className="w-4 h-4 rounded accent-purple-600"
+                className="w-4 h-4 rounded accent-yellow-500"
               />
               <span className="text-sm text-[var(--color-text)]">Accept real names as answers</span>
               <span className="text-xs text-[var(--color-text-muted)]">(e.g. guessing Bruce Banner for Hulk)</span>

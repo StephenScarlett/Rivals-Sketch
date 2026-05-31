@@ -19,23 +19,23 @@ export default function Scoreboard({ players, myId }: ScoreboardProps) {
             key={player.id}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${
               player.isDrawing
-                ? 'bg-purple-600/20 border border-purple-500/30'
+                ? 'bg-yellow-500/20 border border-yellow-500/30'
                 : 'bg-[var(--color-surface-light)]'
             }`}
           >
             <span className="text-[var(--color-text-muted)] w-5 text-center font-mono text-xs">
               {i + 1}
             </span>
-            <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+            <div className="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center text-xs font-bold flex-shrink-0 text-gray-900">
               {player.nickname[0].toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <span className={`block ${player.id === myId ? 'text-purple-300' : ''}`}>
+              <span className={`block ${player.id === myId ? 'text-yellow-300' : ''}`}>
                 {player.nickname}
                 {player.id === myId && ' (you)'}
               </span>
               {player.isDrawing && (
-                <span className="text-xs text-purple-400 font-medium">🖌️ Drawing</span>
+                <span className="text-xs text-yellow-400 font-medium">🖌️ Drawing</span>
               )}
             </div>
             {player.hasGuessed && !player.isDrawing && (

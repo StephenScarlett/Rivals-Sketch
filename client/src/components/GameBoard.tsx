@@ -6,6 +6,7 @@ import Scoreboard from './Scoreboard';
 import Timer from './Timer';
 import WordPicker from './WordPicker';
 import GameOver from './GameOver';
+import { useSound } from '../hooks/useSound';
 import type {
   Player,
   DrawEvent,
@@ -94,6 +95,10 @@ export default function GameBoard({
   const [roundSnapshots, setRoundSnapshots] = useState<RoundSnapshot[]>([]);
   const [mobilePanel, setMobilePanel] = useState<'none' | 'scoreboard' | 'chat'>('none');
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const { muted, play, toggleMute } = useSound();
+  const prevTimeLeftRef = useRef(timeLeft);
+  const prevPlayerCountRef = useRef(players.length);
+  const prevMsgCountRef = useRef(messages.length);
 
   const togglePanel = useCallback((panel: 'scoreboard' | 'chat') => {
     setMobilePanel((prev) => (prev === panel ? 'none' : panel));
@@ -110,6 +115,61 @@ export default function GameBoard({
       setMobilePanel('none');
     }
   }, [showConfetti]);
+
+  // --- Sound effects ---
+
+  // Correct guess: my confetti = triumphant, others = chime
+  useEffect(() => {
+    if (showConfetti) {
+      play('myCorrect');
+    }
+  }, [showConfetti, play]);
+
+  // Other player correct guess sound
+  useEffect(() => {
+    const prev = prevMsgCountRef.current;
+    prevMsgCountRef.current = messages.length;
+    if (messages.length > prev && !showConfetti) {
+      const newMsgs = messages.slice(prev);
+      if (newMsgs.some((m) => m.type === 'correct')) {
+        play('correct');
+      }
+    }
+  }, [messages.length, showConfetti, play]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Timer ticks for last 10 seconds
+  useEffect(() => {
+    if (!isDrawing) return;
+    const prev = prevTimeLeftRef.current;
+    prevTimeLeftRef.current = timeLeft;
+    // Only play on actual countdown changes, not initial set
+    if (prev !== timeLeft && timeLeft <= 10 && timeLeft > 0) {
+      play(timeLeft <= 5 ? 'tickUrgent' : 'tick');
+    }
+  }, [timeLeft, isDrawing, play]);
+
+  // Round start sound
+  useEffect(() => {
+    if (isDrawing) {
+      play('roundStart');
+    }
+  }, [drawingRoundKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Game over sound
+  useEffect(() => {
+    if (gameState === 'GAME_OVER') {
+      play('gameOver');
+    }
+  }, [gameState, play]);
+
+  // Player join sound
+  useEffect(() => {
+    const prev = prevPlayerCountRef.current;
+    prevPlayerCountRef.current = players.length;
+    if (players.length > prev && prev > 0) {
+      play('join');
+    }
+  }, [players.length, play]);
 
   // Build the hint display with spaces between chars
   const hintDisplay = hint
@@ -147,13 +207,21 @@ export default function GameBoard({
     <div className="h-dvh flex flex-col overflow-hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* App nav bar — always visible, separate from game info */}
       <div className="px-3 md:px-6 py-1.5 md:py-2 bg-[var(--color-surface)] border-b border-[var(--color-border)] flex-shrink-0">
-        <div className="flex items-center">
+        <div className="flex items-center justify-between">
           <button
             onClick={() => setShowLeaveConfirm(true)}
-            className="text-base md:text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent flex-shrink-0 hover:opacity-80 transition-opacity"
+            className="text-base md:text-lg font-bold flex-shrink-0 hover:opacity-80 transition-opacity"
             title="Back to main menu"
           >
-            ← Rivals Sketch
+            <span className="text-yellow-400">← Rivals</span>{' '}
+            <span className="text-white">Sketch</span>
+          </button>
+          <button
+            onClick={toggleMute}
+            className="p-1.5 rounded-lg hover:bg-[var(--color-surface-light)] transition text-lg"
+            title={muted ? 'Unmute sounds' : 'Mute sounds'}
+          >
+            {muted ? '🔇' : '🔊'}
           </button>
         </div>
       </div>
@@ -168,11 +236,11 @@ export default function GameBoard({
             <div className="h-4 w-px bg-[var(--color-border)]" />
             {/* Who is drawing */}
             {isDrawer ? (
-              <span className="text-xs md:text-sm px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium flex-shrink-0 truncate max-w-[180px] md:max-w-none">
+              <span className="text-xs md:text-sm px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 font-medium flex-shrink-0 truncate max-w-[180px] md:max-w-none">
                 🖌️ You're drawing{isDrawing ? `: ${drawerWord}` : ''}
               </span>
             ) : currentDrawer ? (
-              <span className="text-xs md:text-sm px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-purple-600/20 border border-purple-500/30 text-purple-300 font-medium flex-shrink-0 truncate max-w-[180px] md:max-w-none">
+              <span className="text-xs md:text-sm px-2 md:px-3 py-0.5 md:py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 font-medium flex-shrink-0 truncate max-w-[180px] md:max-w-none">
                 🖌️ {currentDrawer.nickname} is drawing
               </span>
             ) : null}
@@ -221,7 +289,7 @@ export default function GameBoard({
 
             {/* Reference image for drawer */}
             {isDrawer && isDrawing && drawerImageUrl && (
-              <div className="rounded-xl bg-[var(--color-surface)] border border-purple-500/30 overflow-hidden flex-shrink-0">
+              <div className="rounded-xl bg-[var(--color-surface)] border border-yellow-500/30 overflow-hidden flex-shrink-0">
                 <img
                   src={drawerImageUrl}
                   alt={drawerWord}
@@ -232,7 +300,7 @@ export default function GameBoard({
                   }}
                 />
                 <div className="px-3 py-2">
-                  <p className="text-sm font-semibold text-purple-300">Draw: {drawerWord}</p>
+                  <p className="text-sm font-semibold text-yellow-300">Draw: {drawerWord}</p>
                   {drawerAliases.length > 0 && (
                     <p className="text-xs text-[var(--color-text-muted)]">
                       Also accepts: {drawerAliases.join(', ')}
@@ -282,7 +350,7 @@ export default function GameBoard({
 
           {/* Reference image strip for drawer — below toolbar */}
           {isDrawer && isDrawing && drawerImageUrl && (
-            <div className="flex items-center gap-2 mt-1 px-1.5 py-1 rounded-lg bg-[var(--color-surface)] border border-purple-500/30 flex-shrink-0">
+            <div className="flex items-center gap-2 mt-1 px-1.5 py-1 rounded-lg bg-[var(--color-surface)] border border-yellow-500/30 flex-shrink-0">
               <img
                 src={drawerImageUrl}
                 alt={drawerWord}
@@ -291,7 +359,7 @@ export default function GameBoard({
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-              <span className="text-xs font-medium text-purple-300 truncate">
+              <span className="text-xs font-medium text-yellow-300 truncate">
                 {drawerWord}
               </span>
               {drawerAliases.length > 0 && (
