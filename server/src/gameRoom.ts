@@ -497,6 +497,10 @@ export class GameRoom {
       if (allGuessed) {
         this.clearTimers();
         this.endRound();
+      } else {
+        // Cut remaining time in half to keep rounds moving
+        this.timeLeft = Math.max(1, Math.floor(this.timeLeft / 2));
+        this.room.emit('timer', { timeLeft: this.timeLeft });
       }
 
       return;
