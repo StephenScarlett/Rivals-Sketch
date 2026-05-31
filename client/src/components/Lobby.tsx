@@ -77,10 +77,12 @@ export default function Lobby({
           </div>
         </div>
 
-        {/* Settings (host only) */}
-        {isHost && settings && (
+        {/* Settings */}
+        {settings && (
           <div className="mb-6 space-y-4">
-            <h3 className="text-sm text-[var(--color-text-muted)]">Settings</h3>
+            <h3 className="text-sm text-[var(--color-text-muted)]">
+              Settings {!isHost && <span className="text-xs">(host can change)</span>}
+            </h3>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-[var(--color-text-muted)]">Rounds</label>
@@ -89,7 +91,8 @@ export default function Lobby({
                   onChange={(e) =>
                     onUpdateSettings({ totalRounds: parseInt(e.target.value) })
                   }
-                  className="w-full mt-1 px-3 py-2 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)]"
+                  disabled={!isHost}
+                  className="w-full mt-1 px-3 py-2 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] disabled:opacity-60"
                 >
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                     <option key={n} value={n}>
@@ -105,7 +108,8 @@ export default function Lobby({
                   onChange={(e) =>
                     onUpdateSettings({ drawTime: parseInt(e.target.value) })
                   }
-                  className="w-full mt-1 px-3 py-2 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)]"
+                  disabled={!isHost}
+                  className="w-full mt-1 px-3 py-2 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] disabled:opacity-60"
                 >
                   {[30, 45, 60, 90, 120, 150, 180].map((s) => (
                     <option key={s} value={s}>
@@ -126,16 +130,18 @@ export default function Lobby({
                     <button
                       key={cat}
                       onClick={() => {
+                        if (!isHost) return;
                         const cats = active
                           ? settings.categories.filter((c) => c !== cat)
                           : [...settings.categories, cat];
                         if (cats.length > 0) onUpdateSettings({ categories: cats });
                       }}
+                      disabled={!isHost}
                       className={`px-3 py-1.5 rounded-lg text-sm font-medium transition border ${
                         active
                           ? 'bg-purple-600 border-purple-500 text-white'
-                          : 'bg-[var(--color-surface-light)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-purple-500'
-                      }`}
+                          : 'bg-[var(--color-surface-light)] border-[var(--color-border)] text-[var(--color-text-muted)]'
+                      } ${isHost ? 'hover:border-purple-500 cursor-pointer' : 'cursor-default'}`}
                     >
                       {cat}
                     </button>
@@ -145,11 +151,14 @@ export default function Lobby({
             </div>
 
             {/* Show Hints */}
-            <label className="flex items-center gap-3 cursor-pointer">
+            <label className={`flex items-center gap-3 ${isHost ? 'cursor-pointer' : 'cursor-default'}`}>
               <input
                 type="checkbox"
                 checked={settings.showHints}
-                onChange={(e) => onUpdateSettings({ showHints: e.target.checked })}
+                onChange={(e) => {
+                  if (isHost) onUpdateSettings({ showHints: e.target.checked });
+                }}
+                disabled={!isHost}
                 className="w-4 h-4 rounded accent-purple-600"
               />
               <span className="text-sm text-[var(--color-text)]">Show letter hints</span>

@@ -34,7 +34,7 @@ const DEFAULT_SETTINGS: RoomSettings = {
 };
 
 const PICK_TIME = 15_000;   // 15 seconds to pick a word
-const ROUND_END_TIME = 5_000; // 5 seconds between rounds
+const ROUND_END_TIME = 3_000; // 3 seconds between rounds
 const HINT_FRACTION_1 = 0.4;  // reveal first hint at 40% elapsed
 const HINT_FRACTION_2 = 0.7;  // reveal second hint at 70% elapsed
 
@@ -53,6 +53,7 @@ export class GameRoom {
   roundResults: RoundResult[] = [];
   drawingStartTime = 0;
   drawEvents: DrawEvent[] = [];
+  private pendingWordOptions: WordOption[] = [];
 
   // Timers
   private pickTimer: ReturnType<typeof setTimeout> | null = null;
@@ -178,6 +179,7 @@ export class GameRoom {
 
     // Send 3 word options to the drawer
     const words = getRandomWords(3, this.settings.categories, this.usedWords);
+    this.pendingWordOptions = words;
     this.toSocket(drawerId).emit('pick-words', { words });
 
     // Auto-pick after timeout
@@ -196,17 +198,15 @@ export class GameRoom {
 
     this.clearTimer('pick');
 
-    // Find the word option
-    const options = getRandomWords(0, this.settings.categories); // just to type-check
-    // We trust the client sent back one of the 3 words
-    const allWords = getRandomWords(100, this.settings.categories, this.usedWords);
-    const picked = allWords.find((w) => w.word === word) || {
+    // Look up the word from the options we sent to the drawer
+    const picked = this.pendingWordOptions.find((w) => w.word === word) || {
       word,
       category: WordCategory.HEROES,
       difficulty: 'medium' as any,
     };
 
     this.currentWord = picked;
+    this.pendingWordOptions = [];
     this.usedWords.add(word);
     this.startDrawPhase();
   }

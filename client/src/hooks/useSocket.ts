@@ -193,6 +193,7 @@ export function useSocket() {
         gameState: 'ROUND_END' as GameState,
         roundResult: result,
         allRounds: [...d.allRounds, result],
+        wordOptions: [],
       }));
     });
 
@@ -202,6 +203,7 @@ export function useSocket() {
         gameState: 'GAME_OVER' as GameState,
         finalScores,
         allRounds: rounds,
+        wordOptions: [],
       }));
     });
 

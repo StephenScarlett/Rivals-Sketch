@@ -46,6 +46,7 @@ export class GameManager {
       this.socketToRoom.set(socket.id, code);
 
       socket.emit('room-created', { roomCode: code });
+      socket.emit('settings-updated', { settings: room.settings });
       this.io.to(code).emit('player-joined', { players: room.getPlayersArray() });
 
       console.log(`[GameManager] Room ${code} created by ${nickname}`);
@@ -74,6 +75,8 @@ export class GameManager {
       this.socketToRoom.set(socket.id, code);
 
       this.io.to(code).emit('player-joined', { players: room.getPlayersArray() });
+      // Send current settings to the joining player
+      socket.emit('settings-updated', { settings: room.settings });
 
       console.log(`[GameManager] ${nickname} joined room ${code}`);
     });
