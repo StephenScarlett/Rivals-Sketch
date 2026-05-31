@@ -90,6 +90,7 @@ export default function GameBoard({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [roundSnapshots, setRoundSnapshots] = useState<RoundSnapshot[]>([]);
   const [mobilePanel, setMobilePanel] = useState<'none' | 'scoreboard' | 'chat'>('none');
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
 
   const togglePanel = useCallback((panel: 'scoreboard' | 'chat') => {
     setMobilePanel((prev) => (prev === panel ? 'none' : panel));
@@ -137,9 +138,13 @@ export default function GameBoard({
       {/* Top bar — compact branding + timer/drawer info combined */}
       <div className="px-3 md:px-6 py-2 bg-[var(--color-surface)] border-b border-[var(--color-border)] flex-shrink-0">
         <div className="flex items-center gap-2 md:gap-4">
-          <h1 className="text-base md:text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent flex-shrink-0">
-            Rivals Sketch
-          </h1>
+          <button
+            onClick={() => setShowLeaveConfirm(true)}
+            className="text-base md:text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent flex-shrink-0 hover:opacity-80 transition-opacity"
+            title="Back to main menu"
+          >
+            ← Rivals Sketch
+          </button>
 
           {(isDrawing || gameState === 'PICKING_WORD' || gameState === 'ROUND_END') && (
             <>
@@ -373,6 +378,32 @@ export default function GameBoard({
           onLeave={onLeave}
           isHost={isHost}
         />
+      )}
+
+      {/* Leave confirmation modal */}
+      {showLeaveConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center">
+            <h2 className="text-lg font-bold mb-2">Leave game?</h2>
+            <p className="text-sm text-[var(--color-text-muted)] mb-5">
+              You'll be taken back to the main menu. You may be able to rejoin if the game is still going.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLeaveConfirm(false)}
+                className="flex-1 py-2.5 rounded-lg bg-[var(--color-surface-light)] hover:bg-[var(--color-border)] transition text-sm font-medium"
+              >
+                Stay
+              </button>
+              <button
+                onClick={onLeave}
+                className="flex-1 py-2.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30 transition text-sm font-medium"
+              >
+                Leave
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
