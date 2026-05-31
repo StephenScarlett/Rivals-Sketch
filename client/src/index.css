@@ -14,6 +14,14 @@
   --color-danger: #ef4444;
 }
 
+.rivals-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  transform: skewX(-8deg);
+  display: inline-block;
+}
+
 * {
   box-sizing: border-box;
 }

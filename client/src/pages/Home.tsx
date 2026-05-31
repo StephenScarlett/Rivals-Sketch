@@ -32,7 +32,7 @@ export default function Home() {
       {/* Title */}
       <div className="text-center mb-12">
         <h1 className="text-6xl font-bold mb-2">
-          <span className="text-yellow-400">Rivals</span>{' '}
+          <span className="rivals-logo text-yellow-400">RIVALS</span>{' '}
           <span className="text-white">Sketch</span>
         </h1>
         <p className="text-[var(--color-text-muted)] text-lg">

@@ -112,7 +112,7 @@ export default function Game() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-8 shadow-2xl text-center">
           <h1 className="text-3xl font-bold mb-2">
-            <span className="text-yellow-400">Rivals</span>{' '}
+            <span className="rivals-logo text-yellow-400">RIVALS</span>{' '}
             <span className="text-white">Sketch</span>
           </h1>
           <p className="text-[var(--color-text-muted)] text-sm mb-6">Enter a nickname to join the game</p>

@@ -213,7 +213,8 @@ export default function GameBoard({
             className="text-base md:text-lg font-bold flex-shrink-0 hover:opacity-80 transition-opacity"
             title="Back to main menu"
           >
-            <span className="text-yellow-400">← Rivals</span>{' '}
+            <span className="text-[var(--color-text-muted)]">←</span>{' '}
+            <span className="rivals-logo text-yellow-400">RIVALS</span>{' '}
             <span className="text-white">Sketch</span>
           </button>
           <button
