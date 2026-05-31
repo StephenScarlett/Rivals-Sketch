@@ -1,8 +1,10 @@
 import type { Player, RoundResult } from '../../../shared/types';
+import type { RoundSnapshot } from './GameBoard';
 
 interface GameOverProps {
   finalScores: Player[];
   rounds: RoundResult[];
+  roundSnapshots: RoundSnapshot[];
   myId: string | null;
   onPlayAgain: () => void;
   onLeave: () => void;
@@ -12,6 +14,7 @@ interface GameOverProps {
 export default function GameOver({
   finalScores,
   rounds: _rounds,
+  roundSnapshots,
   myId,
   onPlayAgain,
   onLeave,
@@ -21,7 +24,7 @@ export default function GameOver({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-8 max-w-lg w-full shadow-2xl">
+      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-8 max-w-2xl w-full shadow-2xl my-8">
         <h2 className="text-3xl font-bold text-center mb-6 bg-gradient-to-r from-yellow-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
           Game Over!
         </h2>
@@ -54,6 +57,33 @@ export default function GameOver({
             </div>
           ))}
         </div>
+
+        {/* Drawing Recap */}
+        {roundSnapshots.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-sm text-[var(--color-text-muted)] mb-3">Drawing Recap</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {roundSnapshots.map((snap, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl overflow-hidden bg-[var(--color-surface-light)] border border-[var(--color-border)]"
+                >
+                  <img
+                    src={snap.dataUrl}
+                    alt={snap.word}
+                    className="w-full aspect-[4/3] object-contain bg-white"
+                  />
+                  <div className="px-3 py-2">
+                    <p className="text-sm font-semibold text-purple-300">{snap.word}</p>
+                    <p className="text-xs text-[var(--color-text-muted)]">
+                      drawn by {snap.drawerNickname}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="space-y-3">

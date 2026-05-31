@@ -39,9 +39,10 @@ export interface Player {
 
 export interface RoomSettings {
   maxPlayers: number;    // 2-12
-  totalRounds: number;   // 1-5
-  drawTime: number;      // seconds: 60, 90, 120
+  totalRounds: number;   // 1-10
+  drawTime: number;      // seconds: 30-180
   categories: WordCategory[];
+  showHints: boolean;
 }
 
 export interface RoomInfo {
@@ -124,6 +125,7 @@ export interface ServerToClientEvents {
     round: number;
     totalRounds: number;
     drawTime: number;
+    imageUrl?: string;
   }) => void;
   'draw': (data: DrawEvent) => void;
   'correct-guess': (data: { player: string; scores: ScoreUpdate[] }) => void;

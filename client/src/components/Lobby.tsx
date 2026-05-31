@@ -1,4 +1,7 @@
 import type { Player, RoomSettings } from '../../../shared/types';
+import { WordCategory } from '../../../shared/types';
+
+const ALL_CATEGORIES = Object.values(WordCategory);
 
 interface LobbyProps {
   roomCode: string;
@@ -76,7 +79,7 @@ export default function Lobby({
 
         {/* Settings (host only) */}
         {isHost && settings && (
-          <div className="mb-6 space-y-3">
+          <div className="mb-6 space-y-4">
             <h3 className="text-sm text-[var(--color-text-muted)]">Settings</h3>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -88,7 +91,7 @@ export default function Lobby({
                   }
                   className="w-full mt-1 px-3 py-2 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)]"
                 >
-                  {[1, 2, 3, 4, 5].map((n) => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                     <option key={n} value={n}>
                       {n} round{n > 1 ? 's' : ''}
                     </option>
@@ -104,7 +107,7 @@ export default function Lobby({
                   }
                   className="w-full mt-1 px-3 py-2 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)]"
                 >
-                  {[60, 90, 120].map((s) => (
+                  {[30, 45, 60, 90, 120, 150, 180].map((s) => (
                     <option key={s} value={s}>
                       {s}s
                     </option>
@@ -112,6 +115,46 @@ export default function Lobby({
                 </select>
               </div>
             </div>
+
+            {/* Categories */}
+            <div>
+              <label className="text-xs text-[var(--color-text-muted)] mb-2 block">Categories</label>
+              <div className="flex flex-wrap gap-2">
+                {ALL_CATEGORIES.map((cat) => {
+                  const active = settings.categories.includes(cat);
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        const cats = active
+                          ? settings.categories.filter((c) => c !== cat)
+                          : [...settings.categories, cat];
+                        if (cats.length > 0) onUpdateSettings({ categories: cats });
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition border ${
+                        active
+                          ? 'bg-purple-600 border-purple-500 text-white'
+                          : 'bg-[var(--color-surface-light)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-purple-500'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Show Hints */}
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={settings.showHints}
+                onChange={(e) => onUpdateSettings({ showHints: e.target.checked })}
+                className="w-4 h-4 rounded accent-purple-600"
+              />
+              <span className="text-sm text-[var(--color-text)]">Show letter hints</span>
+              <span className="text-xs text-[var(--color-text-muted)]">(reveals letters over time)</span>
+            </label>
           </div>
         )}
 

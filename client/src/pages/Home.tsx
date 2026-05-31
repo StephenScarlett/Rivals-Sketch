@@ -6,7 +6,7 @@ export default function Home() {
     () => localStorage.getItem('rivals-nickname') || ''
   );
   const [joinCode, setJoinCode] = useState('');
-  const [mode, setMode] = useState<'menu' | 'create' | 'join'>('menu');
+  const [mode, setMode] = useState<'menu' | 'join'>('menu');
   const navigate = useNavigate();
 
   const handleNicknameChange = (val: string) => {
@@ -59,9 +59,7 @@ export default function Home() {
             </div>
 
             <button
-              onClick={() => {
-                if (nickname.trim()) setMode('create');
-              }}
+              onClick={handleCreate}
               disabled={!nickname.trim()}
               className="w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-lg transition"
             >
@@ -76,24 +74,6 @@ export default function Home() {
               className="w-full py-3 rounded-lg bg-[var(--color-surface-light)] hover:bg-[var(--color-border)] border border-[var(--color-border)] disabled:opacity-40 disabled:cursor-not-allowed text-[var(--color-text)] font-semibold text-lg transition"
             >
               Join Game
-            </button>
-          </div>
-        ) : mode === 'create' ? (
-          <div className="space-y-4">
-            <button
-              onClick={() => setMode('menu')}
-              className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition"
-            >
-              ← Back
-            </button>
-            <p className="text-center text-[var(--color-text-muted)]">
-              Creating room as <span className="text-white font-semibold">{nickname}</span>...
-            </p>
-            <button
-              onClick={handleCreate}
-              className="w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold text-lg transition"
-            >
-              Create Room
             </button>
           </div>
         ) : (

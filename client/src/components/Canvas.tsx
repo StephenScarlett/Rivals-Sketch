@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback, forwardRef, useImperativeHandle } from 'react';
 import type { DrawEvent, DrawStroke } from '../../../shared/types';
 
 const COLORS = [
@@ -13,9 +13,13 @@ interface CanvasProps {
   isDrawer: boolean;
   drawEvents: DrawEvent[];
   onDraw: (event: DrawEvent) => void;
+  roundKey: number;
 }
 
-export default function Canvas({ isDrawer, drawEvents, onDraw }: CanvasProps) {
+const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(function Canvas(
+  { isDrawer, drawEvents, onDraw, roundKey },
+  ref
+) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawingRef = useRef(false);
   const currentStrokeRef = useRef<{ x: number; y: number }[]>([]);
@@ -23,7 +27,9 @@ export default function Canvas({ isDrawer, drawEvents, onDraw }: CanvasProps) {
 
   const [color, setColor] = useState('#000000');
   const [brushSize, setBrushSize] = useState(6);
-  const [tool, setTool] = useState<'brush' | 'eraser'>('brush');
+  const [tool, setTool] = useState<'brush' | 'eraser' | 'fill'>('brush');
+
+  useImperativeHandle(ref, () => canvasRef.current!);
 
   const getCtx = useCallback(() => {
     return canvasRef.current?.getContext('2d') ?? null;
@@ -59,17 +65,82 @@ export default function Canvas({ isDrawer, drawEvents, onDraw }: CanvasProps) {
     [getCtx]
   );
 
+  // Flood fill
+  const floodFill = useCallback(
+    (startX: number, startY: number, fillColor: string) => {
+      const canvas = canvasRef.current;
+      const ctx = getCtx();
+      if (!canvas || !ctx) return;
+
+      const w = canvas.width;
+      const h = canvas.height;
+      const sx = Math.round(startX);
+      const sy = Math.round(startY);
+      if (sx < 0 || sx >= w || sy < 0 || sy >= h) return;
+
+      const imageData = ctx.getImageData(0, 0, w, h);
+      const data = imageData.data;
+
+      const startIdx = (sy * w + sx) * 4;
+      const tR = data[startIdx], tG = data[startIdx + 1], tB = data[startIdx + 2], tA = data[startIdx + 3];
+
+      // Parse fill color to RGB
+      const tmp = document.createElement('canvas');
+      tmp.width = tmp.height = 1;
+      const tc = tmp.getContext('2d')!;
+      tc.fillStyle = fillColor;
+      tc.fillRect(0, 0, 1, 1);
+      const fd = tc.getImageData(0, 0, 1, 1).data;
+      const [fR, fG, fB] = [fd[0], fd[1], fd[2]];
+
+      if (tR === fR && tG === fG && tB === fB && tA === 255) return;
+
+      const tolerance = 32;
+      const match = (i: number) =>
+        Math.abs(data[i] - tR) <= tolerance &&
+        Math.abs(data[i + 1] - tG) <= tolerance &&
+        Math.abs(data[i + 2] - tB) <= tolerance &&
+        Math.abs(data[i + 3] - tA) <= tolerance;
+
+      const visited = new Uint8Array(w * h);
+      const stack: number[] = [sx, sy];
+
+      while (stack.length > 0) {
+        const cy = stack.pop()!;
+        const cx = stack.pop()!;
+        if (cx < 0 || cx >= w || cy < 0 || cy >= h) continue;
+        const pi = cy * w + cx;
+        if (visited[pi]) continue;
+        const i = pi * 4;
+        if (!match(i)) continue;
+
+        visited[pi] = 1;
+        data[i] = fR;
+        data[i + 1] = fG;
+        data[i + 2] = fB;
+        data[i + 3] = 255;
+
+        stack.push(cx + 1, cy, cx - 1, cy, cx, cy + 1, cx, cy - 1);
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+    },
+    [getCtx]
+  );
+
   // Replay all strokes from history
   const replayAll = useCallback(() => {
     clearCanvas();
     for (const event of strokeHistoryRef.current) {
       if (event.type === 'stroke' && event.stroke) {
         drawStroke(event.stroke);
+      } else if (event.type === 'fill' && event.fillColor && event.fillPoint) {
+        floodFill(event.fillPoint.x, event.fillPoint.y, event.fillColor);
       } else if (event.type === 'clear') {
         clearCanvas();
       }
     }
-  }, [clearCanvas, drawStroke]);
+  }, [clearCanvas, drawStroke, floodFill]);
 
   // Initialize canvas
   useEffect(() => {
@@ -80,6 +151,14 @@ export default function Canvas({ isDrawer, drawEvents, onDraw }: CanvasProps) {
     clearCanvas();
   }, [clearCanvas]);
 
+  // Clear canvas on new round
+  useEffect(() => {
+    if (roundKey > 0) {
+      clearCanvas();
+      strokeHistoryRef.current = [];
+    }
+  }, [roundKey, clearCanvas]);
+
   // Process incoming draw events (from other players)
   useEffect(() => {
     if (isDrawer) return;
@@ -87,6 +166,9 @@ export default function Canvas({ isDrawer, drawEvents, onDraw }: CanvasProps) {
     for (const event of drawEvents) {
       if (event.type === 'stroke' && event.stroke) {
         drawStroke(event.stroke);
+        strokeHistoryRef.current.push(event);
+      } else if (event.type === 'fill' && event.fillColor && event.fillPoint) {
+        floodFill(event.fillPoint.x, event.fillPoint.y, event.fillColor);
         strokeHistoryRef.current.push(event);
       } else if (event.type === 'clear') {
         clearCanvas();
@@ -96,7 +178,7 @@ export default function Canvas({ isDrawer, drawEvents, onDraw }: CanvasProps) {
         replayAll();
       }
     }
-  }, [drawEvents, isDrawer, drawStroke, clearCanvas, replayAll]);
+  }, [drawEvents, isDrawer, drawStroke, clearCanvas, replayAll, floodFill]);
 
   // Get mouse position relative to canvas
   const getPos = (e: React.MouseEvent | React.TouchEvent) => {
@@ -123,6 +205,20 @@ export default function Canvas({ isDrawer, drawEvents, onDraw }: CanvasProps) {
   const handlePointerDown = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDrawer) return;
     e.preventDefault();
+
+    if (tool === 'fill') {
+      const pos = getPos(e);
+      floodFill(pos.x, pos.y, color);
+      const event: DrawEvent = {
+        type: 'fill',
+        fillColor: color,
+        fillPoint: pos,
+      };
+      strokeHistoryRef.current.push(event);
+      onDraw(event);
+      return;
+    }
+
     isDrawingRef.current = true;
     const pos = getPos(e);
     currentStrokeRef.current = [pos];
@@ -164,7 +260,7 @@ export default function Canvas({ isDrawer, drawEvents, onDraw }: CanvasProps) {
           points: currentStrokeRef.current,
           color,
           width: brushSize,
-          tool,
+          tool: tool === 'eraser' ? 'eraser' : 'brush',
         },
       };
       strokeHistoryRef.current.push(event);
@@ -307,6 +403,16 @@ export default function Canvas({ isDrawer, drawEvents, onDraw }: CanvasProps) {
             🧹 Eraser
           </button>
           <button
+            onClick={() => setTool('fill')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+              tool === 'fill'
+                ? 'bg-purple-600 text-white'
+                : 'bg-[var(--color-surface-light)] hover:bg-[var(--color-border)]'
+            }`}
+          >
+            🪣 Fill
+          </button>
+          <button
             onClick={handleUndo}
             className="px-3 py-1.5 rounded-lg text-sm font-medium bg-[var(--color-surface-light)] hover:bg-[var(--color-border)] transition"
           >
@@ -322,4 +428,6 @@ export default function Canvas({ isDrawer, drawEvents, onDraw }: CanvasProps) {
       )}
     </div>
   );
-}
+});
+
+export default Canvas;

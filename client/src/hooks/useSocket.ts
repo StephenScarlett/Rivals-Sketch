@@ -34,6 +34,10 @@ export interface GameData {
   error: string | null;
   isCloseGuess: boolean;
   myId: string | null;
+  drawerWord: string;
+  drawerImageUrl: string;
+  drawingRoundKey: number;
+  showHints: boolean;
 }
 
 export function useSocket() {
@@ -60,6 +64,10 @@ export function useSocket() {
     error: null,
     isCloseGuess: false,
     myId: null,
+    drawerWord: '',
+    drawerImageUrl: '',
+    drawingRoundKey: 0,
+    showHints: true,
   });
 
   useEffect(() => {
@@ -99,7 +107,7 @@ export function useSocket() {
     });
 
     socket.on('settings-updated', ({ settings }) => {
-      setData((d) => ({ ...d, settings }));
+      setData((d) => ({ ...d, settings, showHints: settings.showHints }));
     });
 
     socket.on('game-started', ({ state }) => {
@@ -117,23 +125,31 @@ export function useSocket() {
       setData((d) => ({ ...d, wordOptions: words }));
     });
 
-    socket.on('drawing-start', ({ drawer, wordLength, category, round, totalRounds, drawTime }) => {
-      setData((d) => ({
-        ...d,
-        gameState: 'DRAWING' as GameState,
-        currentDrawer: drawer,
-        wordLength,
-        category,
-        round,
-        totalRounds,
-        drawTime,
-        timeLeft: drawTime,
-        hint: '_'.repeat(wordLength),
-        wordOptions: [],
-        drawEvents: [],
-        roundResult: null,
-        isCloseGuess: false,
-      }));
+    socket.on('drawing-start', ({ drawer, wordLength, category, round, totalRounds, drawTime, imageUrl }) => {
+      setData((d) => {
+        const amDrawer = drawer.id === socket.id;
+        return {
+          ...d,
+          gameState: 'DRAWING' as GameState,
+          currentDrawer: drawer,
+          wordLength,
+          category,
+          round,
+          totalRounds,
+          drawTime,
+          timeLeft: drawTime,
+          hint: '_'.repeat(wordLength),
+          wordOptions: [],
+          drawEvents: [],
+          roundResult: null,
+          isCloseGuess: false,
+          drawingRoundKey: d.drawingRoundKey + 1,
+          // Preserve drawerWord/drawerImageUrl for the drawer (set by pickWord), clear for guessers
+          ...(amDrawer
+            ? { drawerImageUrl: d.drawerImageUrl || imageUrl || '' }
+            : { drawerWord: '', drawerImageUrl: '' }),
+        };
+      });
     });
 
     socket.on('draw', (event) => {
@@ -228,6 +244,10 @@ export function useSocket() {
   }, []);
 
   const pickWord = useCallback((word: string) => {
+    setData((d) => {
+      const picked = d.wordOptions.find((w) => w.word === word);
+      return { ...d, drawerWord: word, drawerImageUrl: picked?.imageUrl || '' };
+    });
     socket.emit('pick-word', { word });
   }, []);
 

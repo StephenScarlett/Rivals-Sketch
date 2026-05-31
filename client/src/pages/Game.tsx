@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Lobby from '../components/Lobby';
 import GameBoard from '../components/GameBoard';
@@ -7,6 +7,8 @@ import { useSocket } from '../hooks/useSocket';
 export default function Game() {
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
+  const [needsNickname, setNeedsNickname] = useState(false);
+  const [pendingNickname, setPendingNickname] = useState('');
   const {
     connected,
     roomCode,
@@ -30,6 +32,10 @@ export default function Game() {
     error,
     isCloseGuess,
     myId,
+    drawerWord,
+    drawerImageUrl,
+    drawingRoundKey,
+    showHints,
     joinRoom,
     createRoom,
     startGame,
@@ -43,7 +49,7 @@ export default function Game() {
 
   // Auto-create or auto-join room from URL
   useEffect(() => {
-    if (connected && code && !roomCode && players.length === 0) {
+    if (connected && code && !roomCode && players.length === 0 && !needsNickname) {
       const nickname = localStorage.getItem('rivals-nickname');
       if (nickname) {
         if (code === 'new') {
@@ -52,10 +58,10 @@ export default function Game() {
           joinRoom(code, nickname);
         }
       } else {
-        navigate('/');
+        setNeedsNickname(true);
       }
     }
-  }, [connected, code, roomCode, players.length, joinRoom, createRoom, navigate]);
+  }, [connected, code, roomCode, players.length, joinRoom, createRoom, needsNickname]);
 
   // Once room is created, update the URL from /game/new to /game/CODE
   useEffect(() => {
@@ -67,6 +73,18 @@ export default function Game() {
   const handleLeave = () => {
     leaveRoom();
     navigate('/');
+  };
+
+  const handleNicknameSubmit = () => {
+    if (!pendingNickname.trim() || !code) return;
+    const nick = pendingNickname.trim();
+    localStorage.setItem('rivals-nickname', nick);
+    setNeedsNickname(false);
+    if (code === 'new') {
+      createRoom(nick);
+    } else {
+      joinRoom(code, nick);
+    }
   };
 
   // Show error toast
@@ -81,6 +99,36 @@ export default function Game() {
             className="mt-4 px-4 py-2 rounded-lg bg-[var(--color-surface-light)] hover:bg-[var(--color-border)] transition text-sm"
           >
             Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (needsNickname) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-8 shadow-2xl text-center">
+          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-400 via-red-400 to-yellow-400 bg-clip-text text-transparent">
+            Rivals Sketch
+          </h1>
+          <p className="text-[var(--color-text-muted)] text-sm mb-6">Enter a nickname to join the game</p>
+          <input
+            type="text"
+            value={pendingNickname}
+            onChange={(e) => setPendingNickname(e.target.value.slice(0, 20))}
+            onKeyDown={(e) => e.key === 'Enter' && handleNicknameSubmit()}
+            placeholder="Enter nickname..."
+            maxLength={20}
+            autoFocus
+            className="w-full px-4 py-3 rounded-lg bg-[var(--color-surface-light)] border border-[var(--color-border)] text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-purple-500 transition mb-4"
+          />
+          <button
+            onClick={handleNicknameSubmit}
+            disabled={!pendingNickname.trim()}
+            className="w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-lg transition"
+          >
+            Join Game
           </button>
         </div>
       </div>
@@ -136,6 +184,10 @@ export default function Game() {
       finalScores={finalScores}
       allRounds={allRounds}
       isCloseGuess={isCloseGuess}
+      drawerWord={drawerWord}
+      drawerImageUrl={drawerImageUrl}
+      drawingRoundKey={drawingRoundKey}
+      showHints={showHints}
       onPickWord={pickWord}
       onDraw={sendDraw}
       onGuess={sendGuess}

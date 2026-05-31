@@ -30,6 +30,7 @@ const DEFAULT_SETTINGS: RoomSettings = {
     WordCategory.WEAPONS,
     WordCategory.MAPS,
   ],
+  showHints: true,
 };
 
 const PICK_TIME = 15_000;   // 15 seconds to pick a word
@@ -228,6 +229,7 @@ export class GameRoom {
       round: this.currentRound,
       totalRounds: this.settings.totalRounds,
       drawTime: this.settings.drawTime,
+      imageUrl: this.currentWord.imageUrl,
     });
 
     // Start countdown timer
@@ -239,12 +241,14 @@ export class GameRoom {
       const elapsed = this.settings.drawTime - this.timeLeft;
       const fraction = elapsed / this.settings.drawTime;
 
-      if (this.hintsRevealed === 0 && fraction >= HINT_FRACTION_1) {
-        this.hintsRevealed = 1;
-        this.sendHint();
-      } else if (this.hintsRevealed === 1 && fraction >= HINT_FRACTION_2) {
-        this.hintsRevealed = 2;
-        this.sendHint();
+      if (this.settings.showHints) {
+        if (this.hintsRevealed === 0 && fraction >= HINT_FRACTION_1) {
+          this.hintsRevealed = 1;
+          this.sendHint();
+        } else if (this.hintsRevealed === 1 && fraction >= HINT_FRACTION_2) {
+          this.hintsRevealed = 2;
+          this.sendHint();
+        }
       }
 
       if (this.timeLeft <= 0) {
