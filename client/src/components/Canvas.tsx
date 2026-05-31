@@ -317,22 +317,23 @@ const Canvas = forwardRef<HTMLCanvasElement, CanvasProps>(function Canvas(
   return (
     <div className="flex flex-col gap-3 h-full">
       {/* Canvas */}
-      <div className="relative rounded-xl overflow-hidden border-2 border-[var(--color-border)] bg-white flex-1 min-h-0">
-        <canvas
-          ref={canvasRef}
-          className="w-full cursor-crosshair touch-none"
-          style={{ aspectRatio: '4/3' }}
-          onMouseDown={handlePointerDown}
-          onMouseMove={handlePointerMove}
-          onMouseUp={handlePointerUp}
-          onMouseLeave={handlePointerUp}
-          onTouchStart={handlePointerDown}
-          onTouchMove={handlePointerMove}
-          onTouchEnd={handlePointerUp}
-        />
-        {!isDrawer && (
-          <div className="absolute inset-0 cursor-default" />
-        )}
+      <div className="relative flex-1 min-h-0 flex items-center justify-center">
+        <div className="relative rounded-xl overflow-hidden border-2 border-[var(--color-border)] bg-white w-full" style={{ maxHeight: '100%', aspectRatio: '4/3' }}>
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full cursor-crosshair touch-none block"
+            onMouseDown={handlePointerDown}
+            onMouseMove={handlePointerMove}
+            onMouseUp={handlePointerUp}
+            onMouseLeave={handlePointerUp}
+            onTouchStart={handlePointerDown}
+            onTouchMove={handlePointerMove}
+            onTouchEnd={handlePointerUp}
+          />
+          {!isDrawer && (
+            <div className="absolute inset-0 cursor-default" />
+          )}
+        </div>
       </div>
 
       {/* Toolbar (drawer only) */}
