@@ -43,6 +43,7 @@ export interface RoomSettings {
   drawTime: number;      // seconds: 30-180
   categories: WordCategory[];
   showHints: boolean;
+  useRealNames: boolean;
 }
 
 export interface RoomInfo {
@@ -128,6 +129,7 @@ export interface ServerToClientEvents {
     imageUrl?: string;
   }) => void;
   'draw': (data: DrawEvent) => void;
+  'drawer-word': (data: { word: string; imageUrl?: string }) => void;
   'correct-guess': (data: { player: string; scores: ScoreUpdate[] }) => void;
   'close-guess': () => void;
   'hint': (data: { revealed: string }) => void;

@@ -23,23 +23,25 @@ export default function Scoreboard({ players, myId }: ScoreboardProps) {
                 : 'bg-[var(--color-surface-light)]'
             }`}
           >
-            <span className="text-[var(--color-text-muted)] w-5 text-center font-mono">
+            <span className="text-[var(--color-text-muted)] w-5 text-center font-mono text-xs">
               {i + 1}
             </span>
             <div className="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
               {player.nickname[0].toUpperCase()}
             </div>
-            <span className={`flex-1 truncate ${player.id === myId ? 'text-purple-300' : ''}`}>
-              {player.nickname}
-              {player.id === myId && ' (you)'}
-            </span>
-            {player.isDrawing && (
-              <span className="text-xs text-purple-400">🖌️</span>
-            )}
+            <div className="flex-1 min-w-0">
+              <span className={`block ${player.id === myId ? 'text-purple-300' : ''}`}>
+                {player.nickname}
+                {player.id === myId && ' (you)'}
+              </span>
+              {player.isDrawing && (
+                <span className="text-xs text-purple-400 font-medium">🖌️ Drawing</span>
+              )}
+            </div>
             {player.hasGuessed && !player.isDrawing && (
-              <span className="text-xs text-green-400">✓</span>
+              <span className="text-green-400 text-sm">✓</span>
             )}
-            <span className="font-mono font-semibold text-yellow-400 w-12 text-right">
+            <span className="font-mono font-semibold text-yellow-400 text-right">
               {player.score}
             </span>
           </div>

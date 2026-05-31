@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS: RoomSettings = {
     WordCategory.MAPS,
   ],
   showHints: true,
+  useRealNames: false,
 };
 
 const PICK_TIME = 15_000;   // 15 seconds to pick a word
@@ -178,7 +179,7 @@ export class GameRoom {
     this.drawEvents = [];
 
     // Send 3 word options to the drawer
-    const words = getRandomWords(3, this.settings.categories, this.usedWords);
+    const words = getRandomWords(3, this.settings.categories, this.usedWords, this.settings.useRealNames);
     this.pendingWordOptions = words;
     this.toSocket(drawerId).emit('pick-words', { words });
 
@@ -221,6 +222,23 @@ export class GameRoom {
     this.timeLeft = this.settings.drawTime;
     this.hintsRevealed = 0;
 
+    // Reset hasGuessed for all players this turn
+    for (const p of this.players.values()) {
+      p.hasGuessed = false;
+    }
+
+    // Broadcast updated player list (with reset hasGuessed)
+    this.room.emit('player-joined', { players: this.getPlayersArray() });
+
+    // Send round divider chat message
+    this.room.emit('chat-message', {
+      id: `round-${this.currentRound}-${this.currentTurnIndex}`,
+      sender: 'system',
+      text: `── Round ${this.currentRound}/${this.settings.totalRounds} ── ${drawer.nickname} is drawing ──`,
+      type: 'system',
+      timestamp: Date.now(),
+    });
+
     // Broadcast round start (word length, not the word itself)
     this.room.emit('drawing-start', {
       drawer: { ...drawer },
@@ -229,6 +247,12 @@ export class GameRoom {
       round: this.currentRound,
       totalRounds: this.settings.totalRounds,
       drawTime: this.settings.drawTime,
+      imageUrl: this.currentWord.imageUrl,
+    });
+
+    // Send the actual word only to the drawer
+    this.toSocket(drawerId).emit('drawer-word', {
+      word: this.currentWord.word,
       imageUrl: this.currentWord.imageUrl,
     });
 
@@ -403,10 +427,22 @@ export class GameRoom {
     this.roundResults.push(result);
     this.room.emit('round-end', result);
 
-    // Move to next turn after delay
+    // Send answer reveal as chat message
+    const guessCount = result.guessers.length;
+    this.room.emit('chat-message', {
+      id: `answer-${Date.now()}`,
+      sender: 'system',
+      text: guessCount > 0
+        ? `The answer was "${result.word}" — ${guessCount} player${guessCount > 1 ? 's' : ''} guessed it!`
+        : `The answer was "${result.word}" — nobody guessed it!`,
+      type: 'system',
+      timestamp: Date.now(),
+    });
+
+    // Move to next turn quickly
     this.roundEndTimer = setTimeout(() => {
       this.nextTurn();
-    }, ROUND_END_TIME);
+    }, 1500);
   }
 
   private nextTurn(): void {

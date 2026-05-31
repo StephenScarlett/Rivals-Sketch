@@ -4,7 +4,6 @@ import Chat from './Chat';
 import Scoreboard from './Scoreboard';
 import Timer from './Timer';
 import WordPicker from './WordPicker';
-import RoundSummary from './RoundSummary';
 import GameOver from './GameOver';
 import type {
   Player,
@@ -173,7 +172,7 @@ export default function GameBoard({
 
       {/* Main content */}
       <div className="flex-1 p-4">
-        <div className="max-w-7xl mx-auto grid grid-cols-[200px_1fr_280px] gap-4 h-full" style={{ minHeight: 'calc(100vh - 140px)' }}>
+        <div className="max-w-7xl mx-auto grid grid-cols-[260px_1fr_280px] gap-4 h-full" style={{ minHeight: 'calc(100vh - 140px)' }}>
           {/* Left: Scoreboard */}
           <div>
             <Scoreboard players={players} myId={myId} />
@@ -221,12 +220,8 @@ export default function GameBoard({
       </div>
 
       {/* Overlays */}
-      {wordOptions.length > 0 && (
+      {wordOptions.length > 0 && gameState !== 'ROUND_END' && (
         <WordPicker words={wordOptions} onPick={onPickWord} />
-      )}
-
-      {gameState === 'ROUND_END' && roundResult && (
-        <RoundSummary result={roundResult} />
       )}
 
       {gameState === 'GAME_OVER' && finalScores && (

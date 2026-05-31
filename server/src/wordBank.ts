@@ -2,6 +2,7 @@ import { WordOption, WordCategory, Difficulty } from '../../shared/types';
 
 // In-memory word bank, loaded on server start
 let wordBank: WordOption[] = [];
+const realNameWords = new Set<string>(); // track words that are real/human names
 
 // Hardcoded fallback words if the API is unreachable
 const FALLBACK_WORDS: WordOption[] = [
@@ -153,21 +154,21 @@ export async function loadWordBank(): Promise<void> {
     }
 
     for (const hero of heroes) {
-      // Use real_name if available (e.g., "Bruce Banner"), otherwise title-case the slug name
-      const displayName = hero.real_name || titleCase(hero.name || hero.id);
       const imageUrl = hero.imageUrl
         ? `${IMG_BASE}${hero.imageUrl}`
         : undefined;
 
-      // Add hero name
-      const wordLen = displayName.length;
+      // Primary: title-cased hero slug name (e.g., "Hulk", "Spider Man")
+      const heroName = titleCase(hero.name || hero.id);
+      const wordLen = heroName.length;
       const difficulty = wordLen <= 5 ? Difficulty.EASY : wordLen <= 12 ? Difficulty.MEDIUM : Difficulty.HARD;
-      addWord(displayName, WordCategory.HEROES, difficulty, imageUrl);
+      addWord(heroName, WordCategory.HEROES, difficulty, imageUrl);
 
-      // Also add the slug name as title case if different (e.g., "Hulk" vs "Bruce Banner")
-      const altName = titleCase(hero.name || '');
-      if (altName && altName.toLowerCase() !== displayName.toLowerCase()) {
-        addWord(altName, WordCategory.HEROES, difficulty, imageUrl);
+      // Also add real_name if different (e.g., "Bruce Banner") — tagged so we can filter later
+      const realName = hero.real_name || '';
+      if (realName && realName.toLowerCase() !== heroName.toLowerCase()) {
+        realNameWords.add(realName.toLowerCase());
+        addWord(realName, WordCategory.HEROES, difficulty, imageUrl);
       }
 
       // Add abilities (skip collab abilities to avoid duplication)
@@ -193,7 +194,7 @@ export async function loadWordBank(): Promise<void> {
           if (
             typeof costumeName === 'string' &&
             costumeName.length > 2 &&
-            costumeName.toLowerCase() !== displayName.toLowerCase() &&
+            costumeName.toLowerCase() !== heroName.toLowerCase() &&
             costumeName.toLowerCase() !== (hero.name || '').toLowerCase() &&
             costume.quality !== 'NO_QUALITY'
           ) {
@@ -242,15 +243,23 @@ export async function loadWordBank(): Promise<void> {
 export function getRandomWords(
   count: number,
   categories: WordCategory[],
-  usedWords: Set<string> = new Set()
+  usedWords: Set<string> = new Set(),
+  useRealNames: boolean = false
 ): WordOption[] {
   let pool = wordBank.filter(
-    (w) => categories.includes(w.category) && !usedWords.has(w.word)
+    (w) =>
+      categories.includes(w.category) &&
+      !usedWords.has(w.word) &&
+      (useRealNames || !realNameWords.has(w.word.toLowerCase()))
   );
 
   // If pool is too small, allow repeats
   if (pool.length < count) {
-    pool = wordBank.filter((w) => categories.includes(w.category));
+    pool = wordBank.filter(
+      (w) =>
+        categories.includes(w.category) &&
+        (useRealNames || !realNameWords.has(w.word.toLowerCase()))
+    );
   }
 
   // Shuffle and pick

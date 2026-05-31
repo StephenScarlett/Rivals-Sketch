@@ -164,6 +164,21 @@ export default function Lobby({
               <span className="text-sm text-[var(--color-text)]">Show letter hints</span>
               <span className="text-xs text-[var(--color-text-muted)]">(reveals letters over time)</span>
             </label>
+
+            {/* Use Real Names */}
+            <label className={`flex items-center gap-3 ${isHost ? 'cursor-pointer' : 'cursor-default'}`}>
+              <input
+                type="checkbox"
+                checked={settings.useRealNames}
+                onChange={(e) => {
+                  if (isHost) onUpdateSettings({ useRealNames: e.target.checked });
+                }}
+                disabled={!isHost}
+                className="w-4 h-4 rounded accent-purple-600"
+              />
+              <span className="text-sm text-[var(--color-text)]">Include real names</span>
+              <span className="text-xs text-[var(--color-text-muted)]">(e.g. Bruce Banner instead of Hulk)</span>
+            </label>
           </div>
         )}
 
