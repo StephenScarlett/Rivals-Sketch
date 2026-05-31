@@ -128,7 +128,7 @@ export async function loadWordBank(): Promise<void> {
       return;
     }
 
-    const response = await fetch('https://marvelrivalsapi.com/api/v1/heroes', {
+    const response = await fetch('https://marvelrivalsapi.com/api/v2/heroes', {
       headers: { 'x-api-key': apiKey },
     });
 
@@ -138,7 +138,7 @@ export async function loadWordBank(): Promise<void> {
 
     const heroes: any[] = (await response.json()) as any[];
     const apiWords: WordOption[] = [];
-    const IMG_BASE = 'https://marvelrivalsapi.com';
+    const IMG_BASE = 'https://marvelrivalsapi.com/rivals';
     const seenWords = new Set<string>();
 
     function titleCase(s: string): string {
@@ -195,7 +195,7 @@ export async function loadWordBank(): Promise<void> {
         for (const ability of hero.abilities) {
           const abilityName = ability.name || ability;
           if (typeof abilityName === 'string' && abilityName.length > 2 && !ability.isCollab) {
-            const icon = ability.icon ? `${IMG_BASE}/rivals${ability.icon}` : undefined;
+            const icon = ability.icon ? `${IMG_BASE}${ability.icon}` : undefined;
             addWord(
               abilityName,
               WordCategory.ABILITIES,
@@ -217,7 +217,7 @@ export async function loadWordBank(): Promise<void> {
             costumeName.toLowerCase() !== (hero.name || '').toLowerCase() &&
             costume.quality !== 'NO_QUALITY'
           ) {
-            const icon = costume.icon ? `${IMG_BASE}/rivals${costume.icon}` : undefined;
+            const icon = costume.icon ? `${IMG_BASE}${costume.icon}` : undefined;
             addWord(costumeName, WordCategory.SKINS, Difficulty.HARD, icon);
           }
         }
@@ -226,7 +226,7 @@ export async function loadWordBank(): Promise<void> {
 
     // Try to load maps
     try {
-      const mapsRes = await fetch('https://marvelrivalsapi.com/api/v1/maps', {
+      const mapsRes = await fetch('https://marvelrivalsapi.com/api/v2/maps', {
         headers: { 'x-api-key': apiKey },
       });
       if (mapsRes.ok) {
