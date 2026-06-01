@@ -31,10 +31,11 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       {/* Title */}
       <div className="text-center mb-12">
-        <h1 className="text-6xl font-bold mb-2">
-          <span className="rivals-logo text-yellow-400">RIVALS</span>{' '}
-          <span className="text-white">Sketch</span>
-        </h1>
+        <img
+          src="/rivals-sketch-logo.png"
+          alt="Rivals Sketch"
+          className="h-24 md:h-32 mx-auto mb-4 logo-hover"
+        />
         <p className="text-[var(--color-text-muted)] text-lg">
           Draw & guess Marvel Rivals heroes with friends
         </p>

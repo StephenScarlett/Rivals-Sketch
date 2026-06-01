@@ -213,9 +213,11 @@ export default function GameBoard({
             className="text-base md:text-lg font-bold flex-shrink-0 hover:opacity-80 transition-opacity"
             title="Back to main menu"
           >
-            <span className="text-[var(--color-text-muted)]">←</span>{' '}
-            <span className="rivals-logo text-yellow-400">RIVALS</span>{' '}
-            <span className="text-white">Sketch</span>
+            <img
+              src="/rivals-sketch-logo.png"
+              alt="Rivals Sketch"
+              className="h-6 md:h-7"
+            />
           </button>
           <button
             onClick={toggleMute}

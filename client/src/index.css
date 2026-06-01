@@ -3,10 +3,10 @@
 :root {
   --color-primary: #eab308;
   --color-primary-dark: #ca8a04;
-  --color-bg: #0f0f1a;
-  --color-surface: #1a1a2e;
-  --color-surface-light: #25253e;
-  --color-border: #2d2d4a;
+  --color-bg: #151a2e;
+  --color-surface: #1e2238;
+  --color-surface-light: #282d45;
+  --color-border: #353a52;
   --color-text: #e2e8f0;
   --color-text-muted: #94a3b8;
   --color-success: #22c55e;
@@ -20,6 +20,16 @@
   letter-spacing: 0.06em;
   transform: skewX(-8deg);
   display: inline-block;
+}
+
+.logo-hover {
+  transition: transform 0.3s ease, filter 0.3s ease;
+  filter: drop-shadow(0 0 0px transparent);
+}
+
+.logo-hover:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 20px rgba(234, 179, 8, 0.4)) drop-shadow(0 0 40px rgba(234, 179, 8, 0.2));
 }
 
 * {
