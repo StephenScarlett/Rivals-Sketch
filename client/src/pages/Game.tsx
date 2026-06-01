@@ -114,7 +114,7 @@ export default function Game() {
           <img
             src="/rivals-sketch-main-logo.png"
             alt="Rivals Sketch"
-            className="h-16 mx-auto mb-2"
+            className="h-24 mx-auto mb-2"
           />
           <p className="text-[var(--color-text-muted)] text-sm mb-6">Enter a nickname to join the game</p>
           <input

@@ -216,7 +216,7 @@ export default function GameBoard({
             <img
               src="/rivals-sketch-main-logo.png"
               alt="Rivals Sketch"
-              className="h-7 md:h-8"
+              className="h-9 md:h-11"
             />
           </button>
           <button

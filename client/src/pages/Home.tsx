@@ -34,7 +34,7 @@ export default function Home() {
         <img
           src="/rivals-sketch-main-logo.png"
           alt="Rivals Sketch"
-          className="h-32 md:h-44 mx-auto mb-4 logo-hover"
+          className="h-48 md:h-64 mx-auto mb-4 logo-hover"
         />
         <p className="text-[var(--color-text-muted)] text-lg">
           Draw & guess Marvel Rivals heroes with friends
