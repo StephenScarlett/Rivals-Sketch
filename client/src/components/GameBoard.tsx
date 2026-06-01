@@ -210,13 +210,13 @@ export default function GameBoard({
         <div className="flex items-center justify-between">
           <button
             onClick={() => setShowLeaveConfirm(true)}
-            className="text-base md:text-lg font-bold flex-shrink-0 hover:opacity-80 transition-opacity"
+            className="text-base md:text-lg font-bold flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer"
             title="Back to main menu"
           >
             <img
-              src="/rivals-sketch-logo.png"
+              src="/rivals-sketch-main-logo.png"
               alt="Rivals Sketch"
-              className="h-6 md:h-7"
+              className="h-7 md:h-8"
             />
           </button>
           <button

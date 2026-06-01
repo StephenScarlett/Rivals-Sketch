@@ -32,9 +32,9 @@ export default function Home() {
       {/* Title */}
       <div className="text-center mb-12">
         <img
-          src="/rivals-sketch-logo.png"
+          src="/rivals-sketch-main-logo.png"
           alt="Rivals Sketch"
-          className="h-24 md:h-32 mx-auto mb-4 logo-hover"
+          className="h-32 md:h-44 mx-auto mb-4 logo-hover"
         />
         <p className="text-[var(--color-text-muted)] text-lg">
           Draw & guess Marvel Rivals heroes with friends

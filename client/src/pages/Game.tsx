@@ -112,9 +112,9 @@ export default function Game() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-8 shadow-2xl text-center">
           <img
-            src="/rivals-sketch-logo.png"
+            src="/rivals-sketch-main-logo.png"
             alt="Rivals Sketch"
-            className="h-12 mx-auto mb-2"
+            className="h-16 mx-auto mb-2"
           />
           <p className="text-[var(--color-text-muted)] text-sm mb-6">Enter a nickname to join the game</p>
           <input
