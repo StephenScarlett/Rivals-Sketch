@@ -28,13 +28,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 overflow-y-auto">
       {/* Title */}
-      <div className="text-center mb-12">
+      <div className="text-center mb-6 md:mb-12">
         <img
           src="/rivals-sketch-main-logo.png"
           alt="Rivals Sketch"
-          className="w-full max-w-lg md:max-w-2xl mx-auto mb-4 logo-hover"
+          className="w-full max-w-xs md:max-w-2xl mx-auto mb-2 md:mb-4 logo-hover"
         />
         <p className="text-[var(--color-text-muted)] text-lg">
           Draw & guess Marvel Rivals heroes with friends
@@ -42,7 +42,7 @@ export default function Home() {
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-md bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-8 shadow-2xl">
+      <div className="w-full max-w-md bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-6 md:p-8 shadow-2xl">
         {mode === 'menu' ? (
           <div className="space-y-4">
             {/* Nickname */}
@@ -111,7 +111,7 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <p className="mt-8 text-xs text-[var(--color-text-muted)] max-w-md text-center">
+      <p className="mt-4 md:mt-8 text-xs text-[var(--color-text-muted)] max-w-md text-center">
         Rivals Sketch is a fan-made project. Not affiliated with or endorsed by Marvel or NetEase.
       </p>
     </div>

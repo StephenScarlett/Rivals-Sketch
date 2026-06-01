@@ -3,15 +3,32 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 // All sounds are synthesized via Web Audio API — no external files needed.
 
 let audioCtx: AudioContext | null = null;
+let audioUnlocked = false;
 
 function getCtx(): AudioContext {
   if (!audioCtx) {
-    audioCtx = new AudioContext();
+    audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
   }
   return audioCtx;
 }
 
-// Resume audio context on first user interaction (required by browsers)
+// Unlock audio on first user interaction — required by mobile browsers
+function unlockAudio() {
+  if (audioUnlocked) return;
+  const ctx = getCtx();
+  if (ctx.state === 'suspended') {
+    ctx.resume();
+  }
+  // Play a silent buffer to fully unlock on iOS
+  const buffer = ctx.createBuffer(1, 1, 22050);
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(ctx.destination);
+  source.start(0);
+  audioUnlocked = true;
+}
+
+// Resume audio context on each sound play
 function ensureResumed() {
   const ctx = getCtx();
   if (ctx.state === 'suspended') {
@@ -108,6 +125,17 @@ const MUTE_KEY = 'rivals-sound-muted';
 export function useSound() {
   const [muted, setMuted] = useState(() => localStorage.getItem(MUTE_KEY) === 'true');
   const mutedRef = useRef(muted);
+
+  // Unlock audio on first user interaction (mobile requirement)
+  useEffect(() => {
+    const handler = () => unlockAudio();
+    document.addEventListener('touchstart', handler, { once: true });
+    document.addEventListener('click', handler, { once: true });
+    return () => {
+      document.removeEventListener('touchstart', handler);
+      document.removeEventListener('click', handler);
+    };
+  }, []);
 
   useEffect(() => {
     mutedRef.current = muted;
